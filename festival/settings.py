@@ -13,13 +13,13 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
+environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^-#9+oupp8zcc838cj)-r1aoylg%h7j6c%&bp5&lmv&l2vu1mu'
+# SECRET_KEY = 'django-insecure-^-#9+oupp8zcc838cj)-r1aoylg%h7j6c%&bp5&lmv&l2vu1mu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
