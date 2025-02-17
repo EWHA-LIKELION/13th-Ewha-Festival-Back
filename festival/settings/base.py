@@ -55,9 +55,9 @@ INSTALLED_APPS = [
 
     # django-allauth
     'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    #'allauth',
+    #'allauth.account',
+    #'allauth.socialaccount',
     'rest_auth.registration',
 
     'storages',
@@ -97,8 +97,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
-    "allauth.account.middleware.AccountMiddleware",
+    #"allauth.account.middleware.AccountMiddleware",
 ]
+
 
 # cors 
 CORS_ORIGIN_ALLOW_ALL=True
