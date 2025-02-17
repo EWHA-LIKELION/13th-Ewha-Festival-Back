@@ -96,7 +96,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # runserver시 주석 해제
+    # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
     "allauth.account.middleware.AccountMiddleware",
 ]
 
