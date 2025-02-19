@@ -22,9 +22,9 @@ class Location(models.Model):
     
 class Day(models.Model):
     DAY_CHOICES = (
-        ('수요일', '수요일'),
-        ('목요일', '목요일'),
-        ('금요일', '금요일'),
+        ('수요일', '수'),
+        ('목요일', '목'),
+        ('금요일', '금'),
     )
 
     name = models.CharField(max_length=10, choices = DAY_CHOICES)
