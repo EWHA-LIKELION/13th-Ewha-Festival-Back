@@ -66,6 +66,8 @@ class OperatingHours(models.Model):
     date = models.IntegerField(choices=DATE_CHOICES)
     open_time = models.CharField(max_length=5, null=False)
     close_time = models.CharField(max_length=5, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.date}일 {self.day_of_week} {self.open_time}~{self.close_time}'
