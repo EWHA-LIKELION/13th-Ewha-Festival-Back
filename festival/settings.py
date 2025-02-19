@@ -8,12 +8,13 @@ pymysql.install_as_MySQLdb()
 AUTH_USER_MODEL = 'accounts.User'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
     DEBUG=(bool, False)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 environ.Env.read_env()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -55,12 +56,15 @@ INSTALLED_APPS = [
 
     # django-allauth
     'django.contrib.sites',
-    #'allauth',
-    #'allauth.account',
-    #'allauth.socialaccount',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'rest_auth.registration',
 
     'storages',
+
+    # swagger
+    'drf_yasg',
 ]
 
 SITE_ID = 1

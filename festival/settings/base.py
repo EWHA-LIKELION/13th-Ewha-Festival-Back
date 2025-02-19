@@ -55,12 +55,15 @@ INSTALLED_APPS = [
 
     # django-allauth
     'django.contrib.sites',
-    #'allauth',
-    #'allauth.account',
-    #'allauth.socialaccount',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'rest_auth.registration',
 
     'storages',
+    
+    # swagger
+    'drf_yasg',
 ]
 
 SITE_ID = 1
