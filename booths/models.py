@@ -40,6 +40,7 @@ class Booth(models.Model):
     scrap_count = models.IntegerField(default=0)
     location = models.CharField(choices=LOCATION_CHOICES, max_length=10)
     booth_num = models.IntegerField()
+    code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
