@@ -1,6 +1,6 @@
 from django.db import models
 
-
+# 부스
 class Booth(models.Model):
     # 선택사항
     LOCATION_CHOICES = (
@@ -46,6 +46,7 @@ class Booth(models.Model):
     def __str__(self):
         return self.name
     
+# 운영 시간
 class OperatingHours(models.Model):
     # 요일
     DAYOFWEEK_CHOICES = (
@@ -72,3 +73,17 @@ class OperatingHours(models.Model):
     def __str__(self):
         return f'{self.date}일 {self.day_of_week} {self.open_time}~{self.close_time}'
 
+# 메뉴
+class Menu(models.Model):
+    booth = models.ForeignKey(Booth, related_name='menu', on_delete=models.CASCADE)
+    thumbnail = models.TextField(blank=True)
+    name = models.CharField(max_length=18, null=False)
+    price = models.IntegerField()
+    is_vegan = models.BooleanField(default=False)
+    is_sale = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.booth.name} - {self.name}'
+    
