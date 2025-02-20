@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'shows',
     'mypages',
     'notices',
+    'scrap',
 
     "corsheaders",
     'rest_framework_simplejwt',

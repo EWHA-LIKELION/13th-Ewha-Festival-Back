@@ -10,7 +10,7 @@ AUTH_USER_MODEL = 'accounts.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, True)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 environ.Env.read_env()
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'shows',
     'mypages',
     'notices',
+    'scrap',
 
     "corsheaders",
     'rest_framework_simplejwt',
@@ -101,7 +102,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
-    #"allauth.account.middleware.AccountMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
