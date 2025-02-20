@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'mypages',
     'notices',
     'scrap',
+    'guestbook',
 
     "corsheaders",
     'rest_framework_simplejwt',
