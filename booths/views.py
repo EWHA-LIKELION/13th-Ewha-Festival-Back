@@ -8,6 +8,7 @@ from .serializers import *
 from .permissions import *
 from image_def import ImageProcessing
 import logging
+import json
 
 logger = logging.getLogger('django')
 
@@ -140,7 +141,7 @@ class BoothPatchView(BoothPatchMixin, APIView):
             booth_serialzier.save()
 
             datas = request_data.get('operating_hours', [])
-
+            datas = json.loads(datas)
             operating_hours = OperatingHours.objects.filter(booth=booth)
 
             for oh in operating_hours:
