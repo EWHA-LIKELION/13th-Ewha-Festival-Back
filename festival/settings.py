@@ -10,7 +10,7 @@ AUTH_USER_MODEL = 'accounts.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
-    DEBUG=(bool, True)
+    DEBUG=(bool, False)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 environ.Env.read_env()
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'notices',
     'scrap',
     'guestbook',
+    'menu',
 
     "corsheaders",
     'rest_framework_simplejwt',
@@ -64,9 +65,6 @@ INSTALLED_APPS = [
     'rest_auth.registration',
 
     'storages',
-
-    # swagger
-    'drf_yasg',
 ]
 
 SITE_ID = 1
@@ -103,7 +101,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
-    #"allauth.account.middleware.AccountMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
@@ -157,13 +155,12 @@ WSGI_APPLICATION = 'festival.wsgi.application'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES = {
+DATABASES = DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -193,7 +190,7 @@ TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # S3 설정하기
