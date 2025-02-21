@@ -12,4 +12,4 @@ class User(AbstractUser):
     scrap_count = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.nickname or "Unnamed"
+        return self.nickname
