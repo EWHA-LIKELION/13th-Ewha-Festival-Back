@@ -43,6 +43,11 @@ class Booth(models.Model):
     code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def update_scrap_count(self):
+        # 스크랩수 동기화 메소드
+        self.scrap_count = self.scraps.count()  # `related_name='scraps'` 사용
+        self.save()
 
     def __str__(self):
         return self.name

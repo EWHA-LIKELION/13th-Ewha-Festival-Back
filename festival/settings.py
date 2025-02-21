@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 import environ
-import pymysql  
+import pymysql
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
 
-    #추가한 앱 이름
+    # 추가한 앱 이름
     'accounts',
     'booths',
     'shows',
@@ -69,9 +69,9 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-#jwt
+# jwt
 REST_FRAMEWORK = {
-		# 'DATETIME_FORMAT': '%y-%m-%d %H:%M',
+    # 'DATETIME_FORMAT': '%y-%m-%d %H:%M',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -84,12 +84,12 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'TOKEN_USER_CLASS': 'accounts.User',
-    'BLACKLIST_AFTER_ROTATION': True, 
+    'BLACKLIST_AFTER_ROTATION': True,
     # 알아서
 }
 
 MIDDLEWARE = [
-    #추가 
+    # 추가
     "corsheaders.middleware.CorsMiddleware",
 
     'django.middleware.security.SecurityMiddleware',
@@ -105,10 +105,10 @@ MIDDLEWARE = [
 ]
 
 
-# cors 
-CORS_ORIGIN_ALLOW_ALL=True
+# cors
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_METHODS = ( 
+CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
     'OPTIONS',
