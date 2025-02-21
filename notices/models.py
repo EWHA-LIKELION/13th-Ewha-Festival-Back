@@ -9,7 +9,7 @@ class Notice(models.Model):
     content = models.TextField(null=False)
     operating_hours = models.CharField(max_length=100, null=True, blank=True)  # 운영시간 (예: 수목금 10:00 - 18:00)
     contact_info = models.TextField(null=True, blank=True)  # 운영진 연락처
-    status = models.CharField(max_length=20, choices=[('운영중', '운영중'), ('운영종료', '운영종료')], default='running')  # 운영 여부
+    status = models.CharField(max_length=20, choices=[('운영중', '운영중'), ('운영종료', '운영종료')], default='운영중')  # 운영 여부
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
