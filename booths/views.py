@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework import views
+from rest_framework.views import APIView
 from rest_framework.status import *
 from rest_framework.response import Response
 from .models import *
 from scrap.models import *
 from .serializers import *
-from rest_framework import status 
+from .permissions import *
+from image_def import ImageProcessing
 import logging
 
 logger = logging.getLogger('django')
@@ -26,7 +27,7 @@ class BoothDataMixin:
     
     def get_is_scrap(self, user, booth):
         if user.is_authenticated:
-            return Scrap.objects.exists(user=user, booth=booth)
+            return Scrap.objects.filter(user=user, booth=booth).exists()
         return False
 
     def get_notices(self, booth):
@@ -44,8 +45,19 @@ class BoothDataMixin:
         serializer = BoothGuestBookSerializer(guestbooks, many=True, context={'request': request})
         return serializer.data
 
-# 부스 상세 조회(공지)
-class BoothNoticeView(BoothDataMixin, views.APIView):
+class BoothPatchMixin:
+    def get_booth_patch_data(self, booth_id):
+        booth = get_object_or_404(Booth, id=booth_id)
+        serializer = BoothPatchSerializer(booth)
+        return serializer.data
+    
+    def get_operating_hours_patch(self, booth):
+        operating_hours = OperatingHours.objects.filter(booth=booth)
+        serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
+        return serializer.data
+
+# 부스 상세 조회(공지) API
+class BoothNoticeView(BoothDataMixin, APIView):
     def get(self, request, booth_id):
         booth_data = self.get_booth_data(booth_id, request)
         operating_hours = self.get_operating_hours(booth_id)
@@ -61,8 +73,8 @@ class BoothNoticeView(BoothDataMixin, views.APIView):
 
         return Response(data=data, status=HTTP_200_OK)
     
-# 부스 상세 조회(메뉴)
-class BoothMenuView(BoothDataMixin, views.APIView):
+# 부스 상세 조회(메뉴) API
+class BoothMenuView(BoothDataMixin, APIView):
     def get(self, request, booth_id):
         booth_data = self.get_booth_data(booth_id, request)
         operating_hours = self.get_operating_hours(booth_id)
@@ -78,8 +90,8 @@ class BoothMenuView(BoothDataMixin, views.APIView):
 
         return Response(data=data, status=HTTP_200_OK)
 
-# 부스 상세 조회(방명록)
-class BoothGuestBookView(BoothDataMixin, views.APIView):
+# 부스 상세 조회(방명록) API
+class BoothGuestBookView(BoothDataMixin, APIView):
     def get(self, request, booth_id):
         booth_data = self.get_booth_data(booth_id, request)
         operating_hours = self.get_operating_hours(booth_id)
@@ -95,3 +107,62 @@ class BoothGuestBookView(BoothDataMixin, views.APIView):
 
         return Response(data=data, status=HTTP_200_OK)
     
+# 부스 수정 관련 API
+class BoothPatchView(BoothPatchMixin, APIView):
+    permission_classes=[IsManger]
+
+    def get(self, request, booth_id):
+        booth_data = self.get_booth_patch_data(booth_id)
+        operating_hours = self.get_operating_hours_patch(booth_id)
+        notice_count = Notice.objects.filter(booth=booth_id).count()
+        menu_count = Menu.objects.filter(booth=booth_id).count()
+
+        data = {
+            "booth": booth_data,
+            "operating_hours": operating_hours,
+            "notice_count": notice_count,
+            "menu_count": menu_count
+        }
+
+        return Response(data=data, status=HTTP_200_OK)
+    
+    def patch(self, request, booth_id):
+        request_data = request.data.copy()
+
+        booth = get_object_or_404(Booth, id=booth_id)
+        if 'thumbnail_image' in request_data:
+            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}'
+            request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "booth_thumbnail", filename)
+            
+        booth_serialzier = BoothPatchSerializer(booth, data=request_data, partial=True)
+
+        if booth_serialzier.is_valid():
+            booth_serialzier.save()
+
+            datas = request_data.get('operating_hours', [])
+
+            operating_hours = OperatingHours.objects.filter(booth=booth)
+
+            for oh in operating_hours:
+                if oh not in [data['date'] for data in datas]:
+                    oh.delete()
+
+            for data in datas:
+                operating_hours = OperatingHours.objects.filter(booth=booth, date=data['date']).first()
+
+                if operating_hours:
+                    operating_hours_serializer = OperatingHoursPatchSerializer(operating_hours, data=data, partial=True)
+
+                    if operating_hours_serializer.is_valid():
+                        operating_hours_serializer.save()
+                    
+                else:
+                    data['booth'] = booth_id
+                    operating_hours_serializer = OperatingHoursPatchSerializer(data=data)
+
+                    if operating_hours_serializer.is_valid():
+                        operating_hours_serializer.save()
+                    
+                    
+
+            return Response({"message": "부스 정보 수정 완료"}, status=HTTP_200_OK)
