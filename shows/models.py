@@ -38,7 +38,7 @@ class PerformanceSchedule(models.Model):
     start_time = models.CharField(max_length=5, null=False)  
     end_time = models.CharField(max_length=5, null=False)  
     created_at = models.DateTimeField(auto_now_add=True) 
-    updated_at = models.DateTimeField(auto_now=True) 
+    updated_at = models.DateTimeField(auto_now=True)  # 수정일
 
     def __str__(self):
         return f'{self.show.name} - {self.day_of_week} {self.start_time}~{self.end_time}'
