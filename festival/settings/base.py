@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'notices',
     'scrap',
     'guestbook',
+    'menu',
 
     "corsheaders",
     'rest_framework_simplejwt',

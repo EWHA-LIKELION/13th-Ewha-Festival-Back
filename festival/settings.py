@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'notices',
     'scrap',
     'guestbook',
+    'menu',
 
     "corsheaders",
     'rest_framework_simplejwt',
@@ -100,7 +101,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
-    "allauth.account.middleware.AccountMiddleware",
+    #"allauth.account.middleware.AccountMiddleware",
 ]
 
 
