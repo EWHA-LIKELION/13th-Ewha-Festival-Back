@@ -126,7 +126,7 @@ class BoothPatchView(BoothPatchMixin, APIView):
         }
 
         return Response(data=data, status=HTTP_200_OK)
-    
+
     def patch(self, request, booth_id):
         request_data = request.data.copy()
 
