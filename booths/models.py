@@ -1,6 +1,5 @@
 from django.db import models
 
-
 # 부스
 
 
@@ -33,8 +32,6 @@ class Booth(models.Model):
         ('밴드', '밴드')
     )
 
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='booths')  # 유저와 부스를 연결
     name = models.CharField(max_length=100)
     thumbnail = models.TextField(blank=True)
     description = models.TextField(blank=True)
