@@ -1,6 +1,9 @@
 from django.db import models
 
+
 # 부스
+
+
 class Booth(models.Model):
     # 선택사항
     LOCATION_CHOICES = (
@@ -30,6 +33,8 @@ class Booth(models.Model):
         ('밴드', '밴드')
     )
 
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='booths')  # 유저와 부스를 연결
     name = models.CharField(max_length=100)
     thumbnail = models.TextField(blank=True)
     description = models.TextField(blank=True)
@@ -40,19 +45,26 @@ class Booth(models.Model):
     scrap_count = models.IntegerField(default=0)
     location = models.CharField(choices=LOCATION_CHOICES, max_length=10)
     booth_num = models.IntegerField()
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    def update_scrap_count(self):
-        # 스크랩수 동기화 메소드
-        self.scrap_count = self.scraps.count()  # `related_name='scraps'` 사용
-        self.save()
+
+    def increase_scrap_count(self):
+        """스크랩 개수 증가"""
+        self.scrap_count += 1
+        self.save(update_fields=['scrap_count'])
+
+    def decrease_scrap_count(self):
+        if self.scrap_count > 0:
+            self.scrap_count -= 1
+            self.save(update_fields=['scrap_count'])
 
     def __str__(self):
         return self.name
-    
+
 # 운영 시간
+
+
 class OperatingHours(models.Model):
     # 요일
     DAYOFWEEK_CHOICES = (
@@ -68,7 +80,8 @@ class OperatingHours(models.Model):
         (12, 12),
     )
 
-    booth = models.ForeignKey(Booth, on_delete=models.CASCADE, related_name='operating_hours')
+    booth = models.ForeignKey(
+        Booth, on_delete=models.CASCADE, related_name='operating_hours')
     day_of_week = models.CharField(choices=DAYOFWEEK_CHOICES, max_length=5)
     date = models.IntegerField(choices=DATE_CHOICES)
     open_time = models.CharField(max_length=5, null=False)
@@ -80,8 +93,11 @@ class OperatingHours(models.Model):
         return f'{self.date}일 {self.day_of_week} {self.open_time}~{self.close_time}'
 
 # 메뉴
+
+
 class Menu(models.Model):
-    booth = models.ForeignKey(Booth, related_name='menu', on_delete=models.CASCADE)
+    booth = models.ForeignKey(
+        Booth, related_name='menu', on_delete=models.CASCADE)
     thumbnail = models.TextField(blank=True)
     name = models.CharField(max_length=18, null=False)
     price = models.IntegerField()
@@ -92,4 +108,3 @@ class Menu(models.Model):
 
     def __str__(self):
         return f'{self.booth.name} - {self.name}'
-    

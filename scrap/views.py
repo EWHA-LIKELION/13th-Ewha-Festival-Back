@@ -16,13 +16,16 @@ class BoothScrapView(views.APIView):
         if Scrap.objects.filter(booth=booth, user=request.user).exists():
             return Response({"message": "이미 스크랩 하셨습니다."}, status=HTTP_400_BAD_REQUEST)
 
-        # 스크랩 생성
+        # ✅ 스크랩 생성
         Scrap.objects.create(booth=booth, user=request.user)
 
-        # 🚀 스크랩 카운트 업데이트 (중요)
-        booth.update_scrap_count()
+        # ✅ 스크랩 카운트 증가
+        booth.increase_scrap_count()
 
-        return Response({"message": "스크랩 성공", "scrap_count": booth.scrap_count}, status=HTTP_201_CREATED)
+        return Response({
+            "message": "스크랩 성공",
+            "scrap_count": booth.scrap_count  # ✅ 업데이트된 개수 반환
+        }, status=HTTP_201_CREATED)
 
     def delete(self, request, pk):
         if not request.user.is_authenticated:
@@ -34,10 +37,13 @@ class BoothScrapView(views.APIView):
         if not scrap:
             return Response({"message": "취소할 스크랩이 없습니다."}, status=HTTP_400_BAD_REQUEST)
 
-        # 스크랩 삭제
+        # ✅ 스크랩 삭제
         scrap.delete()
 
-        # 스크랩 카운트 업데이트
-        booth.update_scrap_count()
+        # ✅ 스크랩 카운트 감소
+        booth.decrease_scrap_count()
 
-        return Response({"message": "스크랩 삭제", "scrap_count": booth.scrap_count}, status=HTTP_200_OK)
+        return Response({
+            "message": "스크랩 삭제",
+            "scrap_count": booth.scrap_count  # ✅ 업데이트된 개수 반환
+        }, status=HTTP_200_OK)
