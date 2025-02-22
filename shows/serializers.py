@@ -18,7 +18,6 @@ def format_timedelta(td):
     else:
         return "방금 전"
     
-
 class ShowSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     is_manager = SerializerMethodField()
@@ -36,10 +35,10 @@ class ShowSerializer(ModelSerializer):
     
     def get_is_manager(self, obj):
         request = self.context.get('request')
-        if not request.user.is_authenticated:
+        if not request or not request.user.is_authenticated:
             return False
-        return obj == request.user.show if request else False
-    
+        return obj == request.user.show
+
 class ShowNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
 
@@ -52,7 +51,6 @@ class ShowNoticeSerializer(ModelSerializer):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
     
-
 class ShowGuestBookSerializer(ModelSerializer):
     nickname = SerializerMethodField()
     formatted_created_at = SerializerMethodField()
@@ -78,7 +76,6 @@ class ShowPatchSerializer(serializers.ModelSerializer):
         model = Show
         fields = ['id', 'name', 'category', 'location', 'description', 'contact', 'thumbnail']
         read_only_fields = ['id', 'created_at', 'updated_at']
-
 
 class PerformanceSchedulePatchSerializer(serializers.ModelSerializer):
     class Meta:
