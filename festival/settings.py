@@ -3,16 +3,16 @@ import os
 from datetime import timedelta
 import environ
 import pymysql  
-pymysql.install_as_MySQLdb()
+#pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'accounts.User'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
     DEBUG=(bool, False)
 )
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+#environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
@@ -29,6 +29,10 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
 
+AUTHENTICATION_BACKENDS = (
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Application definition
 
@@ -53,11 +57,11 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework_simplejwt',
 
-    # django-allauth
+    #django-allauth
     'django.contrib.sites',
-    #'allauth',
-    #'allauth.account',
-    #'allauth.socialaccount',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'rest_auth.registration',
 
     'storages',
@@ -97,7 +101,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
-    #"allauth.account.middleware.AccountMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
@@ -210,3 +214,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
