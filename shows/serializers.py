@@ -1,6 +1,7 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
-from .models import Show
+from .models import Show, PerformanceSchedule
 from notices.models import Notice
 from guestbook.models import GuestBook
 
@@ -51,10 +52,6 @@ class ShowNoticeSerializer(ModelSerializer):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
     
-class ShowMenuSerializer(ModelSerializer):
-    class Meta:
-        model = Menu 
-        fields = ['thumbnail', 'name', 'price', 'is_sale']
 
 class ShowGuestBookSerializer(ModelSerializer):
     nickname = SerializerMethodField()
@@ -75,3 +72,15 @@ class ShowGuestBookSerializer(ModelSerializer):
     def get_is_author(self, obj):
         request = self.context.get('request')
         return obj.user == request.user if request else False
+    
+class ShowPatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Show
+        fields = ['id', 'name', 'category', 'location', 'description', 'contact', 'thumbnail']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class PerformanceSchedulePatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceSchedule
+        fields = ['show', 'day_of_week', 'start_time', 'end_time']
