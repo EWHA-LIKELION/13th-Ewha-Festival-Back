@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'notices',
     'scrap',
     'guestbook',
+    'menu',
 
     "corsheaders",
     'rest_framework_simplejwt',
@@ -64,9 +65,6 @@ INSTALLED_APPS = [
     'rest_auth.registration',
 
     'storages',
-
-    # swagger
-    'drf_yasg',
 ]
 
 SITE_ID = 1
@@ -157,18 +155,12 @@ WSGI_APPLICATION = 'festival.wsgi.application'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES = {
+DATABASES = DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DATABASE_NAME'),
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASSWORD'),
-        'HOST': env('DATABASE_HOST'),
-        'PORT': env('DATABASE_PORT'),
-        "OPTIONS": {"charset": "utf8mb4"},
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

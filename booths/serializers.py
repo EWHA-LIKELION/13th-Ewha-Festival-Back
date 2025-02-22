@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
-from .models import Booth, Menu
+from .models import Booth, Menu, OperatingHours
 from notices.models import Notice
 from guestbook.models import GuestBook
 
@@ -23,7 +23,7 @@ class BoothSerializer(ModelSerializer):
 
     class Meta:
         model = Booth
-        fields = ['id', 'is_manager', 'name', 'thumbnail', 'description', 'category',
+        fields = ['id', 'is_show', 'is_manager', 'name', 'thumbnail', 'description', 'category',
                   'contact', 'is_opened', 'scrap_count', 'formatted_location']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
@@ -76,6 +76,13 @@ class BoothGuestBookSerializer(ModelSerializer):
         request = self.context.get('request')
         return obj.user == request.user if request else False
 
-    
+class BoothPatchSerializer(ModelSerializer):
+    class Meta:
+        model = Booth
+        fields = ['id', 'thumbnail', 'name', 'description', 'contact', 'is_opened']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
-        
+class OperatingHoursPatchSerializer(ModelSerializer):
+    class Meta:
+        model = OperatingHours
+        fields = ['booth', 'date', 'day_of_week', 'open_time', 'close_time']
