@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
 from .models import Booth, Menu, OperatingHours
 from notices.models import Notice
-from guestbook.models import GuestBook
+from guestbooks.models import GuestBook
 
 def format_timedelta(td):
     if td.days >= 1:
