@@ -12,15 +12,19 @@ class Show(models.Model):
         ('스포츠트랙', '스포츠트랙'),
     )
 
-    name = models.CharField(max_length=100) 
-    category = models.CharField(choices=CATEGORY_CHOICES, max_length=10) 
-    location = models.CharField(choices=LOCATION_CHOICES, max_length=10)  
-    description = models.TextField(blank=True)  
-    contact = models.CharField(blank=True, max_length=200) 
-    thumbnail = models.TextField(blank=True)  # 
-    scrap_count = models.IntegerField(default=0)  
-    created_at = models.DateTimeField(auto_now_add=True)  
-    updated_at = models.DateTimeField(auto_now=True)  
+    name = models.CharField(max_length=100)
+    thumbnail = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+    category = models.CharField(choices=CATEGORY_CHOICES, max_length=10)
+    contact = models.CharField(blank=True, max_length=200)
+    is_opened = models.BooleanField(default=True)
+    is_show = models.BooleanField(default=False)
+    scrap_count = models.IntegerField(default=0)
+    location = models.CharField(choices=LOCATION_CHOICES, max_length=10)
+    show_num = models.IntegerField(null=True)
+    code = models.CharField(max_length=50, unique=True, default="DEFAULT_CODE")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.name} ({self.category})'
