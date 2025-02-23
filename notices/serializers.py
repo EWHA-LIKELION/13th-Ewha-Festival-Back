@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Notice
 from django.utils import timezone
+from booths.models import Booth
+from shows.models import Show
 
 class NoticeListSerializer(serializers.ModelSerializer):
     # 시간 차이 구하는 필드 추가 (몇 시간 전에 작성되었는지)
@@ -29,7 +31,7 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
         model = Notice
         fields = ['id', 'title', 'content', 'operating_hours', 'contact_info', 'status', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
-
+    
 
     def validate(self, data):
         if not data.get('booth') and not data.get('show'):
