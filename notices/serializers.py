@@ -33,7 +33,3 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
     
 
-    def validate(self, data):
-        if not data.get('booth') and not data.get('show'):
-            raise serializers.ValidationError("부스 또는 공연 중 하나는 반드시 지정해야 합니다.")
-        return data

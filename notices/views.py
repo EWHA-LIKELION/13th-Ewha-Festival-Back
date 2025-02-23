@@ -66,7 +66,7 @@ class NoticeDetailView(APIView):
         serializer = NoticeDetailSerializer(notice)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, notice_id, *args, **kwargs):
+    def patch(self, request, notice_id, *args, **kwargs):
         notice = self.get_object(notice_id)
         serializer = NoticeDetailSerializer(notice, data=request.data, partial=True)
         if serializer.is_valid():
