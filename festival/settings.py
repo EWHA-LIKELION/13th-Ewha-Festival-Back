@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'scrap',
     'guestbook',
     'menu',
+    'search',
 
     "corsheaders",
     'rest_framework_simplejwt',
