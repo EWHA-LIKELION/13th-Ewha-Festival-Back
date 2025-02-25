@@ -1,3 +1,94 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from booths.models import Booth
+from scrap.models import Scrap
+from accounts.models import User
+from .serializers import BoothScrapSerializer, UserSerializer
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from guestbooks.models import GuestBook
 
-# Create your views here.
+# 마이페이지 - 스크랩북 조회 API
+
+
+class MyPageScrapView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # 현재 로그인한 유저가 스크랩한 데이터 가져오기
+        scraps = Scrap.objects.filter(user=request.user)
+
+        booths = []
+        shows = []
+
+        for scrap in scraps:
+            booth_data = {
+                "id": scrap.booth.id,
+                "name": scrap.booth.name,
+                "location": scrap.booth.location,
+                "is_show": scrap.booth.is_show,
+                "scrap_count": scrap.booth.scrap_count
+            }
+
+            if scrap.booth.is_show:
+                shows.append(booth_data)
+            else:
+                booths.append(booth_data)
+
+        return Response({
+            "booths": booths,
+            "shows": shows
+        }, status=status.HTTP_200_OK)
+
+
+# 마이페이지 - 관리자 코드 입력 API
+class AdminCodeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        """마이페이지 - 관리자 코드 입력"""
+        user = request.user
+        code = request.data.get("code")
+
+        if not code:
+            return Response({"message": "관리자 코드를 입력하세요."}, status=HTTP_400_BAD_REQUEST)
+
+        booth = Booth.objects.filter(code=code).first()
+
+        if not booth:
+            return Response({"message": "잘못된 관리자 코드입니다."}, status=HTTP_400_BAD_REQUEST)
+
+        user.is_booth = True
+        user.booth = booth
+        user.save(update_fields=["is_booth", "booth"])
+
+        return Response({"message": "관리자 권한이 부여되었습니다."}, status=HTTP_200_OK)
+
+
+class MyBoothView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user  # 현재 로그인한 사용자
+
+        if not user.is_booth:
+            return Response({"message": "관리자 권한이 없습니다."}, status=400)
+
+        # 유저의 부스 정보 가져오기 (유저 모델에 이미 부스가 외래키로 연결되어 있음)
+        booth = user.booth
+
+        if not booth:
+            return Response({"message": "부스 정보가 없습니다."}, status=400)
+
+        # 해당 부스에 대한 스크랩 수와 방명록 수
+        scrap_count = Scrap.objects.filter(booth=booth).count()
+        guestbook_count = GuestBook.objects.filter(booth=booth).count()
+
+        # 결과 반환
+        return Response({
+            "booth_name": booth.name,
+            "scrap_count": scrap_count,
+            "guestbook_count": guestbook_count
+        })

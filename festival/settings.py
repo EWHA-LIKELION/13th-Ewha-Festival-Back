@@ -2,8 +2,8 @@ from pathlib import Path
 import os
 from datetime import timedelta
 import environ
-import pymysql  
-#pymysql.install_as_MySQLdb()
+import pymysql
+pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
     DEBUG=(bool, False)
 )
-#environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
@@ -47,18 +47,21 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
 
-    #추가한 앱 이름
+    # 추가한 앱 이름
     'accounts',
     'booths',
     'shows',
     'mypages',
     'notices',
-    'guestbooks', #앱 이름 수정
+    'guestbooks',  # 앱 이름 수정
     'scrap',
+    'menu',
+    'search',
+
     "corsheaders",
     'rest_framework_simplejwt',
 
-    #django-allauth
+    # django-allauth
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -70,9 +73,9 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-#jwt
+# jwt
 REST_FRAMEWORK = {
-		# 'DATETIME_FORMAT': '%y-%m-%d %H:%M',
+    # 'DATETIME_FORMAT': '%y-%m-%d %H:%M',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -85,12 +88,12 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'TOKEN_USER_CLASS': 'accounts.User',
-    'BLACKLIST_AFTER_ROTATION': True, 
+    'BLACKLIST_AFTER_ROTATION': True,
     # 알아서
 }
 
 MIDDLEWARE = [
-    #추가 
+    # 추가
     "corsheaders.middleware.CorsMiddleware",
 
     'django.middleware.security.SecurityMiddleware',
@@ -106,10 +109,10 @@ MIDDLEWARE = [
 ]
 
 
-# cors 
-CORS_ORIGIN_ALLOW_ALL=True
+# cors
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_METHODS = ( 
+CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
     'OPTIONS',
@@ -215,4 +218,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
