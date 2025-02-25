@@ -31,5 +31,5 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
         model = Notice
         fields = ['id', 'title', 'content', 'operating_hours', 'contact_info', 'status', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
-    
+
 

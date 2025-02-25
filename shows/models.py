@@ -30,7 +30,7 @@ class Show(models.Model):
         return f'{self.name} ({self.category})'
 
 # 공연 일정
-class PerformanceSchedule(models.Model):
+class OperatingHours(models.Model):
     DAYOFWEEK_CHOICES = (
         ('수요일', '수요일'),
         ('목요일', '목요일'),

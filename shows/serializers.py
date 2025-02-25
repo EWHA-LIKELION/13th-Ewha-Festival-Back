@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
-from .models import Show, PerformanceSchedule
+from .models import Show, OperatingHours
 from notices.models import Notice
 from guestbook.models import GuestBook
 
@@ -18,14 +18,15 @@ def format_timedelta(td):
     else:
         return "방금 전"
 
-class PerformanceScheduleSerializer(serializers.ModelSerializer):
+class OperatingHoursSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PerformanceSchedule
-        fields = ['show', 'date', 'day_of_week', 'start_time', 'end_time']    
+        model = OperatingHours
+        fields = ['show', 'date', 'day_of_week', 'start_time', 'end_time']   
+
+
 class ShowSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     is_manager = SerializerMethodField()
-    schedules = PerformanceScheduleSerializer(many=True, source='performances')
 
     class Meta:
         model = Show
@@ -48,12 +49,11 @@ class ShowSerializer(ModelSerializer):
 
 class ShowNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
-    schedules = PerformanceScheduleSerializer()
     location = SerializerMethodField()
 
     class Meta:
         model = Notice
-        fields = ['title', 'content', 'formatted_created_at']
+        fields = ['title', 'content', 'formatted_created_at', 'schedules']
         read_only_fields = ['created_at', 'updated_at']
 
     def get_formatted_created_at(self, obj):

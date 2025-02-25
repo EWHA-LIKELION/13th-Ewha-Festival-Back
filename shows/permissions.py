@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from .models import Show, PerformanceSchedule
+from .models import Show, OperatingHours
 
 class IsManger(BasePermission):
     def has_permission(self, request, view):
@@ -9,5 +9,5 @@ class IsManger(BasePermission):
         if isinstance(obj, Show):
             return request.user.show == obj
         
-        elif isinstance(obj, PerformanceSchedule):
+        elif isinstance(obj, OperatingHours):
             return request.user.show == obj.show

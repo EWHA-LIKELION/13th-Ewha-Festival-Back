@@ -7,7 +7,7 @@ from .models import *
 from guestbook.models import GuestBook
 from notices.models import Notice
 from scrap.models import *
-from .serializers import ShowSerializer, ShowNoticeSerializer, ShowGuestBookSerializer, ShowPatchSerializer, PerformanceScheduleSerializer
+from .serializers import ShowSerializer, ShowNoticeSerializer, ShowGuestBookSerializer, ShowPatchSerializer, OperatingHoursSerializer
 from .permissions import *
 from image_def import ImageProcessing
 import logging
@@ -34,9 +34,9 @@ class ShowDataMixin:
         serializer = ShowSerializer(show, context={'request': request})
         return serializer.data
     
-    def get_performance_schedule(self, show):
-        performance_schedule = PerformanceSchedule.objects.filter(show=show).order_by('date')
-        serializer = PerformanceScheduleSerializer(performance_schedule, many=True)
+    def get_operating_hours(self, show):
+        operating_hours = OperatingHours.objects.filter(show=show).order_by('date')
+        serializer = OperatingHoursSerializer(operating_hours, many=True)
         return serializer.data
     
     def get_notices(self, show):
@@ -56,12 +56,12 @@ class ShowNoticeView(ShowDataMixin, APIView):
     def get(self, request, show_id):
         show = get_object_or_404(Show, id=show_id)
         show_data = self.get_show_data(show_id, request)
-        performance_schedule = self.get_performance_schedule(show)
+        operating_hours = self.get_operating_hours(show)
         notices = self.get_notices(show)
 
         data = {
-            "show": show_data,
-            "performance_schedule": performance_schedule,
+            "show": show_data, 
+            "operating_hours": operating_hours,
             "notices": notices
         }
 
@@ -74,12 +74,12 @@ class ShowGuestBookView(ShowDataMixin, APIView):
     def get(self, request, show_id):
         show = get_object_or_404(Show, id=show_id)
         show_data = self.get_show_data(show_id, request)
-        performance_schedule = self.get_performance_schedule(show)
+        operating_hours = self.get_operating_hours(show)
         guest_books = self.get_guest_books(show, request)
 
         data = {
             "show": show_data,
-            "performance_schedule": performance_schedule,
+            "operating_hours": operating_hours,
             "guest_books": guest_books
         }
 
@@ -92,12 +92,12 @@ class ShowPatchView(ShowDataMixin, APIView):
     def get(self, request, show_id):
         show = get_object_or_404(Show, id=show_id)
         show_data = self.get_show_data(show_id, request)
-        performance_schedule = self.get_performance_schedule(show)
+        operating_hours = self.get_operating_hours(show)
         notice_count = Notice.objects.filter(show=show).count()
 
         data = {
             "show": show_data,
-            "performance_schedule": performance_schedule,
+            "operating_hours": operating_hours,
             "notice_count": notice_count,
         }
 
@@ -116,24 +116,24 @@ class ShowPatchView(ShowDataMixin, APIView):
         if show_serializer.is_valid():
             show_serializer.save()
 
-            if 'performance_schedule' in request_data:
-                datas = json.loads(request_data['performance_schedule'])
-                existing_schedules = PerformanceSchedule.objects.filter(show=show)
+            if 'operating_hours' in request_data:
+                datas = json.loads(request_data['operating_hours'])
+                existing_schedules = OperatingHours.objects.filter(show=show)
                 
                 for schedule in existing_schedules:
                     if schedule.date not in [data['date'] for data in datas]:
                         schedule.delete()
                 
                 for data in datas:
-                    schedule_instance = PerformanceSchedule.objects.filter(show=show, date=data['date']).first()
+                    schedule_instance = OperatingHours.objects.filter(show=show, date=data['date']).first()
                     
                     if schedule_instance:
-                        schedule_serializer = PerformanceScheduleSerializer(schedule_instance, data=data, partial=True)
+                        schedule_serializer = OperatingHoursSerializer(schedule_instance, data=data, partial=True)
                         if schedule_serializer.is_valid():
                             schedule_serializer.save()
                     else:
                         data['show'] = show_id
-                        schedule_serializer = PerformanceScheduleSerializer(data=data)
+                        schedule_serializer = OperatingHoursSerializer(data=data)
                         if schedule_serializer.is_valid():
                             schedule_serializer.save()
 
