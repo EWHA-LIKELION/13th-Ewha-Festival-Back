@@ -176,29 +176,30 @@ class BoothPatchView(BoothPatchMixin, APIView):
         if booth_serialzier.is_valid():
             booth_serialzier.save()
 
-            datas = request_data.get('operating_hours', [])
-            datas = json.loads(datas)
-            operating_hours = OperatingHours.objects.filter(booth=booth)
+            if request_data.get('operating_hours', None):
+                datas = request_data.get('operating_hours', [])
+                datas = json.loads(datas)
+                operating_hours = OperatingHours.objects.filter(booth=booth)
 
-            for oh in operating_hours:
-                if oh not in [data['date'] for data in datas]:
-                    oh.delete()
+                for oh in operating_hours:
+                    if oh not in [data['date'] for data in datas]:
+                        oh.delete()
 
-            for data in datas:
-                operating_hours = OperatingHours.objects.filter(booth=booth, date=data['date']).first()
+                for data in datas:
+                    operating_hours = OperatingHours.objects.filter(booth=booth, date=data['date']).first()
 
-                if operating_hours:
-                    operating_hours_serializer = OperatingHoursPatchSerializer(operating_hours, data=data, partial=True)
+                    if operating_hours:
+                        operating_hours_serializer = OperatingHoursPatchSerializer(operating_hours, data=data, partial=True)
 
-                    if operating_hours_serializer.is_valid():
-                        operating_hours_serializer.save()
-                    
-                else:
-                    data['booth'] = booth_id
-                    operating_hours_serializer = OperatingHoursPatchSerializer(data=data)
+                        if operating_hours_serializer.is_valid():
+                            operating_hours_serializer.save()
+                        
+                    else:
+                        data['booth'] = booth_id
+                        operating_hours_serializer = OperatingHoursPatchSerializer(data=data)
 
-                    if operating_hours_serializer.is_valid():
-                        operating_hours_serializer.save()
+                        if operating_hours_serializer.is_valid():
+                            operating_hours_serializer.save()
                     
                     
 
