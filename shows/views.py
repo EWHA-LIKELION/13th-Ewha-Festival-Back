@@ -7,7 +7,7 @@ from .models import *
 from guestbook.models import GuestBook
 from notices.models import Notice
 from scrap.models import *
-from .serializers import ShowSerializer, ShowNoticeSerializer, ShowGuestBookSerializer, ShowPatchSerializer, OperatingHoursSerializer
+from .serializers import ShowSerializer, ShowNoticeSerializer, ShowGuestBookSerializer, ShowPatchSerializer, OperatingHoursPatchSerializer
 from .permissions import *
 from image_def import ImageProcessing
 import logging
@@ -34,10 +34,12 @@ class ShowDataMixin:
         serializer = ShowSerializer(show, context={'request': request})
         return serializer.data
     
-    def get_operating_hours(self, show):
-        operating_hours = OperatingHours.objects.filter(show=show).order_by('date')
-        serializer = OperatingHoursSerializer(operating_hours, many=True)
-        return serializer.data
+    def get_operating_hours(self, booth):
+        operating_hours = OperatingHours.objects.filter(booth=booth).order_by('date')
+        data = []
+        for hours in operating_hours:
+            data.append(f'{hours.date} {hours.day_of_week} {hours.open_time} ~ {hours.close_time}')
+        return data
     
     def get_notices(self, show):
         notices = Notice.objects.filter(show=show).order_by('-created_at')
@@ -60,7 +62,7 @@ class ShowNoticeView(ShowDataMixin, APIView):
         notices = self.get_notices(show)
 
         data = {
-            "show": show_data, 
+            "show": show_data,
             "operating_hours": operating_hours,
             "notices": notices
         }
@@ -92,7 +94,7 @@ class ShowPatchView(ShowDataMixin, APIView):
     def get(self, request, show_id):
         show = get_object_or_404(Show, id=show_id)
         show_data = self.get_show_data(show_id, request)
-        operating_hours = self.get_operating_hours(show)
+        operating_hours= self.get_operating_hours(show)
         notice_count = Notice.objects.filter(show=show).count()
 
         data = {
@@ -128,12 +130,12 @@ class ShowPatchView(ShowDataMixin, APIView):
                     schedule_instance = OperatingHours.objects.filter(show=show, date=data['date']).first()
                     
                     if schedule_instance:
-                        schedule_serializer = OperatingHoursSerializer(schedule_instance, data=data, partial=True)
+                        schedule_serializer = OperatingHoursPatchSerializer(schedule_instance, data=data, partial=True)
                         if schedule_serializer.is_valid():
                             schedule_serializer.save()
                     else:
                         data['show'] = show_id
-                        schedule_serializer = OperatingHoursSerializer(data=data)
+                        schedule_serializer = OperatingHoursPatchSerializer(data=data)
                         if schedule_serializer.is_valid():
                             schedule_serializer.save()
 

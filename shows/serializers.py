@@ -18,11 +18,6 @@ def format_timedelta(td):
     else:
         return "방금 전"
 
-class OperatingHoursSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OperatingHours
-        fields = ['show', 'date', 'day_of_week', 'start_time', 'end_time']   
-
 
 class ShowSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
@@ -44,9 +39,6 @@ class ShowSerializer(ModelSerializer):
             return False
         return obj == request.user.show
     
-
-
-
 class ShowNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
     location = SerializerMethodField()
@@ -90,3 +82,7 @@ class ShowPatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'category', 'location', 'description', 'contact', 'thumbnail']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+class OperatingHoursPatchSerializer(ModelSerializer):
+    class Meta:
+        model = OperatingHours
+        fields = ['booth', 'date', 'day_of_week', 'open_time', 'close_time']
