@@ -24,7 +24,7 @@ class ShowSerializer(ModelSerializer):
 
     class Meta:
         model = Show
-        fields = ['id', 'is_manager', 'name', 'thumbnail', 'description', 'category', 'location', 'day_of_week', 'is_opened', 'scrap_count', 'formatted_location']
+        fields = ['id', 'is_manager', 'name', 'thumbnail', 'description', 'category', 'location', 'is_opened', 'scrap_count', 'formatted_location']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_formatted_location(self, obj):
@@ -76,7 +76,7 @@ class ShowPatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'category', 'location', 'description', 'contact', 'thumbnail']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-class PerformanceSchedulePatchSerializer(serializers.ModelSerializer):
+class PerformanceScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSchedule
         fields = ['show', 'day_of_week', 'start_time', 'end_time']

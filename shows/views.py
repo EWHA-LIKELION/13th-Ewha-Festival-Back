@@ -4,8 +4,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .models import *
+from guestbook.models import GuestBook
+from notices.models import Notice
 from scrap.models import *
-from .serializers import *
+from .serializers import ShowSerializer, ShowNoticeSerializer, ShowGuestBookSerializer, ShowPatchSerializer, PerformanceScheduleSerializer
 from .permissions import *
 from image_def import ImageProcessing
 import logging
@@ -16,9 +18,12 @@ import json
 class ShowListView(APIView):
 
     def get(self, request, *args, **kwargs):
-        shows = Show.objects.all() 
-        total_count = shows.count() 
-        serializer = ShowSerializer(shows, many=True, context={'request': request})  
+        # 데이터 조회
+        shows = Show.objects.all()
+        print(shows)  # 여기에 직접 출력해 보세요
+
+        total_count = shows.count()
+        serializer = ShowSerializer(shows, many=True, context={'request': request})
         
         return Response({"total_count": total_count, "shows": serializer.data}, status=status.HTTP_200_OK)
     
@@ -106,7 +111,7 @@ class ShowPatchView(ShowDataMixin, APIView):
             filename = f'{show.location}{int(show.show_num):02}'
             request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "show_thumbnail", filename)
 
-        show_serializer = ShowSerializer(show, data=request_data, partial=True)
+        show_serializer = ShowPatchSerializer(show, data=request_data, partial=True)
 
         if show_serializer.is_valid():
             show_serializer.save()
