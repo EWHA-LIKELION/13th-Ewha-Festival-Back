@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from .models import Notice
 from .serializers import NoticeListSerializer, NoticeDetailSerializer
 from booths.models import Booth
@@ -76,5 +76,9 @@ class NoticeDetailView(APIView):
     
     def delete(self, request, notice_id, *args, **kwargs):
         notice = self.get_object(notice_id)
+        
+        if notice.author != request.user:
+            raise PermissionDenied(detail="삭제 권한이 없습니다.")
+
         notice.delete()
         return Response({"message": "Notice deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
