@@ -31,17 +31,24 @@ class BoothSearchView(APIView):
         if not all_booths.exists():
             return Response({"message": "검색 결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
-        # 부스 아이디랑 이름, 공연 여부만 반환환
-        results = [
-            {
+        # ✅ 부스의 운영 요일 가져오기 (OperatingHours)
+        results = []
+        for booth in all_booths:
+            operating_hours = OperatingHours.objects.filter(
+                booth=booth).values_list("day_of_week", flat=True)
+            operation_days = list(set(operating_hours))  # 중복 제거
+
+            results.append({
                 "id": booth.id,
                 "name": booth.name,
                 "is_show": booth.is_show,
-                # "location": booth.location,
-                # "scrap_count": booth.scrap_count,
-            }
-            for booth in all_booths
-        ]
+                "thumbnail": booth.thumbnail,
+                "category": booth.category,
+                "is_opened": booth.is_opened,
+                "scrap_count": booth.scrap_count,
+                "location": booth.location,
+                "operation_days": operation_days,  # ✅ 영업 요일 리스트 포함
+            })
 
         return Response(
             {
