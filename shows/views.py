@@ -34,8 +34,8 @@ class ShowDataMixin:
         serializer = ShowSerializer(show, context={'request': request})
         return serializer.data
     
-    def get_operating_hours(self, booth):
-        operating_hours = OperatingHours.objects.filter(booth=booth).order_by('date')
+    def get_operating_hours(self, show):
+        operating_hours = OperatingHours.objects.filter(show=show).order_by('date')
         data = []
         for hours in operating_hours:
             data.append(f'{hours.date} {hours.day_of_week} {hours.open_time} ~ {hours.close_time}')
