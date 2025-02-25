@@ -17,10 +17,15 @@ def format_timedelta(td):
     
     else:
         return "방금 전"
-    
+
+class PerformanceScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceSchedule
+        fields = ['show', 'date', 'day_of_week', 'start_time', 'end_time']    
 class ShowSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     is_manager = SerializerMethodField()
+    schedules = PerformanceScheduleSerializer(many=True, source='performances')
 
     class Meta:
         model = Show
@@ -37,9 +42,14 @@ class ShowSerializer(ModelSerializer):
         if not request or not request.user.is_authenticated:
             return False
         return obj == request.user.show
+    
+
+
 
 class ShowNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
+    schedules = PerformanceScheduleSerializer()
+    location = SerializerMethodField()
 
     class Meta:
         model = Notice
@@ -49,6 +59,10 @@ class ShowNoticeSerializer(ModelSerializer):
     def get_formatted_created_at(self, obj):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
+    
+    def get_location(self, obj):
+        show = obj.show
+        return show.location
     
 class ShowGuestBookSerializer(ModelSerializer):
     nickname = SerializerMethodField()
@@ -76,7 +90,3 @@ class ShowPatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'category', 'location', 'description', 'contact', 'thumbnail']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-class PerformanceScheduleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PerformanceSchedule
-        fields = ['show', 'day_of_week', 'start_time', 'end_time']
