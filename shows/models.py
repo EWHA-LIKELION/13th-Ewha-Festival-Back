@@ -21,8 +21,8 @@ class Show(models.Model):
     is_show = models.BooleanField(default=False)
     scrap_count = models.IntegerField(default=0)
     location = models.CharField(choices=LOCATION_CHOICES, max_length=10)
-    show_num = models.IntegerField(null=True)
-    code = models.CharField(max_length=50, unique=True, default="DEFAULT_CODE")
+    show_num = models.IntegerField()
+    code = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -36,9 +36,16 @@ class PerformanceSchedule(models.Model):
         ('목요일', '목요일'),
         ('금요일', '금요일'),
     )
+    
+    DATE_CHOICES = (
+        (10, 10),
+        (11, 11),
+        (12, 12),
+    )
 
     show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name='schedule')  
-    day_of_week = models.CharField(choices=DAYOFWEEK_CHOICES, max_length=5) 
+    day_of_week = models.CharField(choices=DAYOFWEEK_CHOICES, max_length=5)
+    date = models.IntegerField(choices=DATE_CHOICES)
     start_time = models.CharField(max_length=5, null=False)  
     end_time = models.CharField(max_length=5, null=False)  
     created_at = models.DateTimeField(auto_now_add=True) 

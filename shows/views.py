@@ -14,7 +14,6 @@ import json
 
 # 공연 목록 조회 API
 class ShowListView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         shows = Show.objects.all() 

@@ -24,8 +24,7 @@ class ShowSerializer(ModelSerializer):
 
     class Meta:
         model = Show
-        fields = ['id', 'is_manager', 'name', 'thumbnail', 'description', 'category', 
-                  'location', 'day_of_week', 'is_opened', 'scrap_count', 'formatted_location']
+        fields = ['id', 'is_manager', 'name', 'thumbnail', 'description', 'category', 'location', 'day_of_week', 'is_opened', 'scrap_count', 'formatted_location']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_formatted_location(self, obj):
