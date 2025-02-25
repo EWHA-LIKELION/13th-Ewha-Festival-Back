@@ -8,7 +8,9 @@ class GuestBook(models.Model):
     booth = models.ForeignKey(Booth, on_delete=models.CASCADE, related_name='guestbook_booth')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    
+    #방명록 수정 기능이 없으므로 삭제
+    #updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.user.nickname} - {self.booth.name} guestbook'

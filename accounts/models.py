@@ -7,8 +7,9 @@ from booths.models import Booth
 
 
 class User(AbstractUser):
-    nickname = models.CharField(max_length=10, blank=True, null=True)
+    #nickname = models.CharField(max_length=10, blank=True, null=True)
     is_booth = models.BooleanField(default=False)
+<<<<<<< HEAD
     # email = models.EmailField(unique=True)  # 이메일 필드를 명시적으로 추가
     booth = models.ForeignKey(
         Booth, on_delete=models.SET_NULL, related_name='manager', null=True)
@@ -17,3 +18,10 @@ class User(AbstractUser):
 
 def __str__(self):
     return self.nickname if self.nickname else f"User {self.id}"
+=======
+    booth = models.ForeignKey(Booth, on_delete=models.SET_NULL, related_name='manager', null=True)
+    scrap_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.username
+>>>>>>> e9d92ca0af21e2580d458001d9b72b6503462804

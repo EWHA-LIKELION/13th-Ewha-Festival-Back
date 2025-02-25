@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
 from .models import Booth, Menu, OperatingHours
 from notices.models import Notice
-from guestbook.models import GuestBook
+from guestbooks.models import GuestBook
 
 def format_timedelta(td):
     if td.days >= 1:
@@ -16,6 +16,35 @@ def format_timedelta(td):
 
     else:
         return "방금 전"
+    
+class BoothListSerializer(ModelSerializer):
+    formatted_location = SerializerMethodField()
+    images = SerializerMethodField()
+    day_of_week = SerializerMethodField()
+
+    class Meta:
+        model = Booth
+        fields = ['id', 'name', 'is_opened', 'category', 'day_of_week', 'formatted_location', 'scrap_count', 'description', 'images']
+
+    def get_formatted_location(self, obj):
+        if obj.location.endswith('관'):
+            obj.location = obj.location[:-1]
+        return f"{obj.location}{int(obj.booth_num):02}"
+    
+    def get_images(self, obj):
+        menus = Menu.objects.filter(booth=obj)
+        images = []
+        images.append(obj.thumbnail)
+        for menu in (menus[0:3] if menus.count()>3 else menus):
+            images.append(menu.thumbnail)
+        return images
+    
+    def get_day_of_week(self, obj):
+        operating_hours = OperatingHours.objects.filter(booth=obj)
+        day_of_week = []
+        for day in operating_hours:
+            day_of_week.append(day.day_of_week)
+        return day_of_week
 
 class BoothSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
@@ -63,7 +92,7 @@ class BoothGuestBookSerializer(ModelSerializer):
     
     class Meta:
         model = GuestBook
-        fields = ['nickname', 'content', 'is_author', 'formatted_created_at']
+        fields = ['username', 'content', 'is_author', 'formatted_created_at']
 
     def get_nickname(self, obj):
         return obj.user.nickname

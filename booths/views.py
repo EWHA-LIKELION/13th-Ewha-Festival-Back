@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.status import *
 from rest_framework.response import Response
+from django.db.models import Q
 from .models import *
 from scrap.models import *
 from .serializers import *
@@ -56,6 +57,41 @@ class BoothPatchMixin:
         operating_hours = OperatingHours.objects.filter(booth=booth)
         serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
         return serializer.data
+
+# 부스 리스트 조회 API
+class BoothListView(APIView):
+    def get(self, request):
+        category = request.GET.getlist('category', None)
+        day_of_week = request.GET.getlist('day_of_week', None)
+        location = request.GET.getlist('location', None)
+
+        q1=Q()
+        q1 &= Q(is_show=False)
+        if category:
+            q1 &= Q(category__in = category)
+        
+        if location:
+            q1 &= Q(location__in = location)
+
+        booths = Booth.objects.filter(q1)
+
+        if day_of_week:
+            for booth in booths:
+                q2 = Q()
+                q2 &= Q(booth = booth)
+                q2 &= Q(day_of_week__in = day_of_week)
+                if not OperatingHours.objects.filter(q2).exists():
+                    booths.exclude(id=booth.id)
+                
+
+        serializer = BoothListSerializer(booths, many=True)
+
+        response = {
+            "booth_count": booths.count(),
+            "booth": serializer.data
+        }
+        
+        return Response(data=response, status=HTTP_200_OK)
 
 # 부스 상세 조회(공지) API
 class BoothNoticeView(BoothDataMixin, APIView):

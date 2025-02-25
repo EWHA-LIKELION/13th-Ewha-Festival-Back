@@ -5,6 +5,7 @@ from .views import *
 app_name = 'booths'
 
 urlpatterns=[
+  path('',BoothListView.as_view()),
   path('notices/<int:booth_id>/', BoothNoticeView.as_view()),
   path('menus/<int:booth_id>/', BoothMenuView.as_view()), 
   path('guestbooks/<int:booth_id>/', BoothGuestBookView.as_view()), 
