@@ -14,13 +14,6 @@ class Notice(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-<<<<<<< HEAD
-        if self.booth:
-            return f'{self.booth.name} - {self.id} notice'
-        elif self.show:
-            return f'{self.show.name} - {self.id} notice'
-        return f'Notice {self.id}'
-=======
         return f'{self.booth.name} - {self.id} notice'
     
 class OperationNotice(models.Model):
@@ -30,4 +23,3 @@ class OperationNotice(models.Model):
 
     def __str__(self):
         return f'운영공지 - {self.title}'
->>>>>>> e9d92ca0af21e2580d458001d9b72b6503462804

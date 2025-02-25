@@ -8,7 +8,7 @@ from scrap.models import Scrap
 from accounts.models import User
 from .serializers import BoothScrapSerializer, UserSerializer
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
-from guestbook.models import GuestBook
+from guestbooks.models import GuestBook
 
 # 마이페이지 - 스크랩북 조회 API
 
