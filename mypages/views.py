@@ -61,7 +61,8 @@ class AdminCodeView(APIView):
             return Response({"message": "잘못된 관리자 코드입니다."}, status=HTTP_400_BAD_REQUEST)
 
         user.is_booth = True
-        user.save(update_fields=["is_booth"])
+        user.booth = booth
+        user.save(update_fields=["is_booth", "booth"])
 
         return Response({"message": "관리자 권한이 부여되었습니다."}, status=HTTP_200_OK)
 
@@ -75,8 +76,8 @@ class MyBoothView(APIView):
         if not user.is_booth:
             return Response({"message": "관리자 권한이 없습니다."}, status=400)
 
-        # 유저의 부스 가져오기 (is_booth가 True인 경우만)
-        booth = Booth.objects.filter(user=user).first()
+        # 유저의 부스 정보 가져오기 (유저 모델에 이미 부스가 외래키로 연결되어 있음)
+        booth = user.booth
 
         if not booth:
             return Response({"message": "부스 정보가 없습니다."}, status=400)
