@@ -85,10 +85,11 @@ class SearchHistoryView(APIView):
     def get(self, request):
         user = request.user
         search_history = SearchHistory.objects.filter(
-            user=user).order_by('-created_at')[:5]
+            user=user
+        ).order_by('-updated_at')[:5]  # ✅ updated_at 기준으로 최신 검색어 5개 정렬
 
         # 검색 기록을 JSON 형태로 변환
-        results = [{"query": record.query, "searched_at": record.created_at}
+        results = [{"query": record.query, "searched_at": record.updated_at}
                    for record in search_history]
 
         return Response({"search_history": results}, status=status.HTTP_200_OK)
