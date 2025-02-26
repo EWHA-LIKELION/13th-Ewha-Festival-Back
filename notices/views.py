@@ -1,14 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.exceptions import NotFound, PermissionDenied
 from .models import Notice
 from .serializers import NoticeListSerializer, NoticeDetailSerializer
 from booths.models import Booth
 from shows.models import Show
+from .permissions import IsOwnerOrReadOnly
+
 
 
 class NoticeCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
 
@@ -38,7 +43,10 @@ class NoticeCreateView(APIView):
         if not booth and not show:
             return Response({"error": "부스 또는 공연 중 하나를 지정해야 합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = NoticeDetailSerializer(data=data)
+        #작성자 정보 추가
+        data["author"] = request.user
+
+        serializer = NoticeDetailSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -55,6 +63,8 @@ class NoticeListView(APIView):
     
 
 class NoticeDetailView(APIView):
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    
     def get_object(self, notice_id):
         try:
             return Notice.objects.get(id=notice_id)
@@ -68,6 +78,9 @@ class NoticeDetailView(APIView):
     
     def patch(self, request, notice_id, *args, **kwargs):
         notice = self.get_object(notice_id)
+
+        self.check_object_permissions(request, notice)
+
         serializer = NoticeDetailSerializer(notice, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -76,9 +89,8 @@ class NoticeDetailView(APIView):
     
     def delete(self, request, notice_id, *args, **kwargs):
         notice = self.get_object(notice_id)
-        
-        if notice.author != request.user:
-            raise PermissionDenied(detail="삭제 권한이 없습니다.")
+
+        self.check_object_permissions(request, notice)
 
         notice.delete()
         return Response({"message": "Notice deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

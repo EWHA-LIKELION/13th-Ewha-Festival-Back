@@ -85,4 +85,4 @@ class ShowPatchSerializer(serializers.ModelSerializer):
 class OperatingHoursPatchSerializer(ModelSerializer):
     class Meta:
         model = OperatingHours
-        fields = ['booth', 'date', 'day_of_week', 'open_time', 'close_time']
+        fields = ['shows', 'date', 'day_of_week', 'open_time', 'close_time']

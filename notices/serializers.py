@@ -32,4 +32,7 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'content', 'operating_hours', 'contact_info', 'status', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
 
+    def create(self, validated_data):
+        validated_data['author'] = self.context['request'].user
+        return super().create(validated_data)
 
