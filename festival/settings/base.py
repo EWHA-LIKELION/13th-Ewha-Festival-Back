@@ -2,24 +2,24 @@ from pathlib import Path
 import os
 from datetime import timedelta
 import environ
-import pymysql  
+import pymysql
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'accounts.User'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env(
     DEBUG=(bool, False)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
+#environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^-#9+oupp8zcc838cj)-r1aoylg%h7j6c%&bp5&lmv&l2vu1mu'
+# SECRET_KEY = 'django-insecure-^-#9+oupp8zcc838cj)-r1aoylg%h7j6c%&bp5&lmv&l2vu1mu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
@@ -29,6 +29,10 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
 
+AUTHENTICATION_BACKENDS = (
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Application definition
 
@@ -43,37 +47,35 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
 
-    #추가한 앱 이름
+    # 추가한 앱 이름
     'accounts',
     'booths',
     'shows',
     'mypages',
     'notices',
+    'guestbooks',  # 앱 이름 수정
     'scrap',
-    'guestbook',
     'menu',
+    'search',
 
     "corsheaders",
     'rest_framework_simplejwt',
 
     # django-allauth
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'rest_auth.registration',
+    # 'django.contrib.sites',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'rest_auth.registration',
 
     'storages',
-    
-    # swagger
-    'drf_yasg',
 ]
 
 SITE_ID = 1
 
-#jwt
+# jwt
 REST_FRAMEWORK = {
-		# 'DATETIME_FORMAT': '%y-%m-%d %H:%M',
+    # 'DATETIME_FORMAT': '%y-%m-%d %H:%M',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -86,12 +88,12 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'TOKEN_USER_CLASS': 'accounts.User',
-    'BLACKLIST_AFTER_ROTATION': True, 
+    'BLACKLIST_AFTER_ROTATION': True,
     # 알아서
 }
 
 MIDDLEWARE = [
-    #추가 
+    # 추가
     "corsheaders.middleware.CorsMiddleware",
 
     'django.middleware.security.SecurityMiddleware',
@@ -103,14 +105,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # runserver시 주석 해제 (절대 깃허브에 올리지 x → 서버오류)
-    #"allauth.account.middleware.AccountMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 
-# cors 
-CORS_ORIGIN_ALLOW_ALL=True
+# cors
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_METHODS = ( 
+CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
     'OPTIONS',
@@ -155,14 +157,14 @@ WSGI_APPLICATION = 'festival.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation

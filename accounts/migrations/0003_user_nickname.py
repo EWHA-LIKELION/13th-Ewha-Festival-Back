@@ -6,7 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0002_remove_user_nickname'),
+        #('accounts', '0002_remove_user_nickname'),
+        ('accounts', '0001_initial'),  # 기존 0002_remove_user_nickname 대신 0001_initial을 참조
+
     ]
 
     operations = [

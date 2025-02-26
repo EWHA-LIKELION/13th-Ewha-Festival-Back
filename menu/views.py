@@ -25,7 +25,13 @@ class MenuView(APIView):
         booth = get_object_or_404(Booth, id=booth_id)
 
         request_data = request.data.copy()
-        filename = f'{booth.location[:-1]}{int(booth.booth_num):02}-{request_data['name'].replace(" ","")}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}-{request_data['name'].replace(" ","")}'
+        name = request_data["name"].replace(" ", "")
+        booth_num = int(booth.booth_num)
+
+        if booth.location.endswith("관"):
+            filename = f"{booth.location[:-1]}{booth_num:02}-{name}"
+        else:
+            filename = f"{booth.location}{booth_num:02}-{name}"
         request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "menu_thumbnail", filename)
 
         serializer = MenuSerializer(data=request_data)
