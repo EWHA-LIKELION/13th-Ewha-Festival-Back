@@ -8,16 +8,12 @@ pymysql.install_as_MySQLdb()
 AUTH_USER_MODEL = 'accounts.User'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# env = environ.Env(
-#    DEBUG=(bool, False)
-# )
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 # environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-# environ.Env.read_env()
-
-DEBUG = True
-
+environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -28,9 +24,10 @@ DEBUG = True
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
-SECRET_KEY = '_*omsq&++94wr8dp9yf52nmmbxkf+mbqk^6o*s_6uqz-tl63^0'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
 
 AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
