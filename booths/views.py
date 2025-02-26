@@ -8,6 +8,8 @@ from guestbooks.models import GuestBook
 from scrap.models import *
 from .serializers import *
 from .permissions import *
+from .paginations import *
+from rest_framework.pagination import CursorPagination, PageNumberPagination
 from image_def import ImageProcessing
 import logging
 import json
@@ -59,9 +61,16 @@ class BoothPatchMixin:
         serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
         return serializer.data
 
+class BoothPagination(CursorPagination):
+    page_size = 10
+    ordering = 'name'
+
 # 부스 리스트 조회 API
-class BoothListView(APIView):
-    def get(self, request):
+class BoothListView(APIView, PaginationHandlerMixin):
+    pagination_class = BoothPagination
+    serializer_class = BoothListSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
         category = request.GET.getlist('category', None)
         day_of_week = request.GET.getlist('day_of_week', None)
         location = request.GET.getlist('location', None)
@@ -83,12 +92,16 @@ class BoothListView(APIView):
                 q2 &= Q(day_of_week__in = day_of_week)
                 if not OperatingHours.objects.filter(q2).exists():
                     booths.exclude(id=booth.id)
-                
 
-        serializer = BoothListSerializer(booths, many=True)
+        page = self.paginate_queryset(booths)
+        if page is not None:
+            serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+        else:
+            serializer = self.serializer_class(booths, many=True)    
 
         response = {
             "booth_count": booths.count(),
+            "page_count": booths.count()//10 +1,
             "booth": serializer.data
         }
         
