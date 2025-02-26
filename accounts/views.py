@@ -19,7 +19,6 @@ load_dotenv()
 logger = logging.getLogger('django')
 
 KAKAO_CLIENT_ID = os.environ.get('KAKAO_CLIENT_ID')
-KAKAO_USERNAME = os.environ.get('KAKAO_USERNAME') 
 KAKAO_PASSWORD = os.environ.get('KAKAO_PASSWORD')
 KAKAO_CLIENT_SECRET_KEY = os.environ.get('KAKAO_CLIENT_SECRET_KEY')
 KAKAO_REDIRECT_URI = os.environ.get('KAKAO_REDIRECT_URI')
@@ -128,15 +127,21 @@ class KakaoCallbackView(views.APIView):
         user_info_json = user_info_res.json()
         social_id = str(user_info_json.get('id'))
 
+        # 닉네임 가져오기
+        kakao_account = user_info_json.get("kakao_account", {})
+        profile = kakao_account.get("profile", {})
+        #username 설정 -> 중복값 방지 
+        nickname = profile.get("nickname") 
+
         # 회원가입 및 로그인 처리 
         try:   
-            user_in_db = User.objects.get(username=KAKAO_USERNAME+social_id) 
+            user_in_db = User.objects.get(username=nickname+social_id) 
             # JWT 토큰 발급
             token = RefreshToken.for_user(user_in_db)
             access_token = str(token.access_token)
 
             # kakao계정으로 이미 로그인한 적 있다면 -> rest-auth 로그인
-            data={'username':KAKAO_USERNAME+social_id,'password':KAKAO_PASSWORD}
+            data={'username':nickname+social_id,'password':KAKAO_PASSWORD}
             serializer = KakaoLoginSerializer(data=data)
 
             if serializer.is_valid():
@@ -159,7 +164,8 @@ class KakaoCallbackView(views.APIView):
 class KakaoSignupView(views.APIView):
     def post(self, request):  
         request_data=request.data
-        request_data['username']=KAKAO_USERNAME+request.data['social_id']
+        request_data['username']=request.data['nickname']+request.data['social_id']
+        request_data['nickname']=request.data['nickname']
 
         serializer = KakaoSignupSerializer(data=request_data)
         if serializer.is_valid():
@@ -173,6 +179,7 @@ class KakaoSignupView(views.APIView):
                 'data': {
                     "id": user.id,
                     "username": user.username,
+                    "nickname": user.nickname,
                     "access_token": access_token
                 }
             }, status=HTTP_201_CREATED)

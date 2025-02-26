@@ -8,7 +8,7 @@ from shows.models import Show
 
 
 class User(AbstractUser):
-    #nickname = models.CharField(max_length=10, blank=True, null=True)
+    nickname = models.CharField(max_length=10, blank=True, null=True)
     is_booth = models.BooleanField(default=False)
     booth = models.ForeignKey(Booth, on_delete=models.SET_NULL, related_name='manager', null=True)
     is_show = models.BooleanField(default=False)
