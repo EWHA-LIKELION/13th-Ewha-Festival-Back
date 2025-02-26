@@ -1,4 +1,8 @@
-from rest_framework.response import Response
+from rest_framework.pagination import CursorPagination
+
+class BoothPagination(CursorPagination):
+    page_size = 10
+    ordering = 'name'
 
 class PaginationHandlerMixin(object):
     @property

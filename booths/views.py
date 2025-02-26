@@ -9,7 +9,6 @@ from scrap.models import *
 from .serializers import *
 from .permissions import *
 from .paginations import *
-from rest_framework.pagination import CursorPagination, PageNumberPagination
 from image_def import ImageProcessing
 import logging
 import json
@@ -61,9 +60,7 @@ class BoothPatchMixin:
         serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
         return serializer.data
 
-class BoothPagination(CursorPagination):
-    page_size = 10
-    ordering = 'name'
+
 
 # 부스 리스트 조회 API
 class BoothListView(APIView, PaginationHandlerMixin):
