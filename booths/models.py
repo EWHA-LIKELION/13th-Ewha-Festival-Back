@@ -58,9 +58,9 @@ class OperatingHours(models.Model):
 
     # 날짜
     DATE_CHOICES = (
-        (10, 10),
-        (11, 11),
-        (12, 12),
+        (14, 14),
+        (15, 15),
+        (16, 16),
     )
 
     booth = models.ForeignKey(Booth, on_delete=models.CASCADE, related_name='operating_hours')
