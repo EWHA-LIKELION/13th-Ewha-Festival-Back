@@ -13,4 +13,4 @@ class GuestBook(models.Model):
     #updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.user.nickname} - {self.booth.name} guestbook'
+        return f'{self.user.username} - {self.booth.name} guestbook'

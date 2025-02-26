@@ -4,9 +4,11 @@ from rest_framework.status import *
 from rest_framework.response import Response
 from django.db.models import Q
 from .models import *
+from guestbooks.models import GuestBook
 from scrap.models import *
 from .serializers import *
 from .permissions import *
+from .paginations import *
 from image_def import ImageProcessing
 import logging
 import json
@@ -43,7 +45,7 @@ class BoothDataMixin:
         return serializer.data
     
     def get_guest_books(self, booth, request):
-        guestbooks = GuestBook.objects.filter(booth=booth)
+        guestbooks = GuestBook.objects.filter(booth=booth).order_by('created_at')
         serializer = BoothGuestBookSerializer(guestbooks, many=True, context={'request': request})
         return serializer.data
 
@@ -58,9 +60,14 @@ class BoothPatchMixin:
         serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
         return serializer.data
 
+
+
 # 부스 리스트 조회 API
-class BoothListView(APIView):
-    def get(self, request):
+class BoothListView(APIView, PaginationHandlerMixin):
+    pagination_class = BoothPagination
+    serializer_class = BoothListSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
         category = request.GET.getlist('category', None)
         day_of_week = request.GET.getlist('day_of_week', None)
         location = request.GET.getlist('location', None)
@@ -82,12 +89,16 @@ class BoothListView(APIView):
                 q2 &= Q(day_of_week__in = day_of_week)
                 if not OperatingHours.objects.filter(q2).exists():
                     booths.exclude(id=booth.id)
-                
 
-        serializer = BoothListSerializer(booths, many=True)
+        page = self.paginate_queryset(booths)
+        if page is not None:
+            serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+        else:
+            serializer = self.serializer_class(booths, many=True)    
 
         response = {
             "booth_count": booths.count(),
+            "page_count": booths.count()//10 +1,
             "booth": serializer.data
         }
         
@@ -176,29 +187,30 @@ class BoothPatchView(BoothPatchMixin, APIView):
         if booth_serialzier.is_valid():
             booth_serialzier.save()
 
-            datas = request_data.get('operating_hours', [])
-            datas = json.loads(datas)
-            operating_hours = OperatingHours.objects.filter(booth=booth)
+            if request_data.get('operating_hours', None):
+                datas = request_data.get('operating_hours', [])
+                datas = json.loads(datas)
+                operating_hours = OperatingHours.objects.filter(booth=booth)
 
-            for oh in operating_hours:
-                if oh not in [data['date'] for data in datas]:
-                    oh.delete()
+                for oh in operating_hours:
+                    if oh not in [data['date'] for data in datas]:
+                        oh.delete()
 
-            for data in datas:
-                operating_hours = OperatingHours.objects.filter(booth=booth, date=data['date']).first()
+                for data in datas:
+                    operating_hours = OperatingHours.objects.filter(booth=booth, date=data['date']).first()
 
-                if operating_hours:
-                    operating_hours_serializer = OperatingHoursPatchSerializer(operating_hours, data=data, partial=True)
+                    if operating_hours:
+                        operating_hours_serializer = OperatingHoursPatchSerializer(operating_hours, data=data, partial=True)
 
-                    if operating_hours_serializer.is_valid():
-                        operating_hours_serializer.save()
-                    
-                else:
-                    data['booth'] = booth_id
-                    operating_hours_serializer = OperatingHoursPatchSerializer(data=data)
+                        if operating_hours_serializer.is_valid():
+                            operating_hours_serializer.save()
+                        
+                    else:
+                        data['booth'] = booth_id
+                        operating_hours_serializer = OperatingHoursPatchSerializer(data=data)
 
-                    if operating_hours_serializer.is_valid():
-                        operating_hours_serializer.save()
+                        if operating_hours_serializer.is_valid():
+                            operating_hours_serializer.save()
                     
                     
 
