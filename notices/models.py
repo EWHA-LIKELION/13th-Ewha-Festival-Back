@@ -15,11 +15,19 @@ class Notice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    
-
     def __str__(self):
+        # booth가 None이면 show의 이름을 사용, booth가 있으면 booth.name 사용
         if self.booth:
             return f'{self.booth.name} - {self.id} notice'
         elif self.show:
-            return f'{self.show.name} - {self.id} notice'
-        return f'Notice {self.id}'
+            return f'{self.show.title} - {self.id} notice'
+        else:
+            return f'No Booth or Show - {self.id} notice'
+        
+class OperationNotice(models.Model):
+    title = models.CharField(max_length=22, null=False) #최대 22글자로 제한 
+    content = models.TextField(null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'운영공지 - {self.title}'
