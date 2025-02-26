@@ -1,10 +1,11 @@
 from django.db import models
 from accounts.models import User  # 유저 모델 임포트
+from django.conf import settings
 
 class SearchHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="search_history")
-    query = models.CharField(max_length=100)  # 검색어 저장
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="search_histories")
+    query = models.CharField(max_length=255)  # 검색어
+    created_at = models.DateTimeField(auto_now_add=True)  # 검색한 시간
 
-    class Meta:
-        ordering = ["-created_at"]  # 최신 검색어 기준 정렬
+    def __str__(self):
+        return f"{self.user.username} - {self.query}"
