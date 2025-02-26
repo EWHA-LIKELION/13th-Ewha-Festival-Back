@@ -9,11 +9,10 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class BoothSearchView(APIView):
-    permission_classes = [AllowAny]  # 로그인 여부와 관계없이 검색 가능
+    permission_classes = [AllowAny]
 
     def get(self, request):
         query = request.GET.get("q", "").strip()
-        page = request.GET.get("page", 1)  # 페이지 번호, 기본값 1
 
         # ❗ 검색어가 없을 경우 예외 처리
         if not query:
@@ -34,16 +33,11 @@ class BoothSearchView(APIView):
         if not all_booths.exists():
             return Response({"message": "검색 결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
-        # ✅ 페이지네이션 (5개씩)
-        paginator = PageNumberPagination()
-        paginator.page_size = 5
-        paginated_booths = paginator.paginate_queryset(all_booths, request)
-
         # ✅ 부스의 운영 요일 가져오기 (OperatingHours)
         results = []
-        for booth in paginated_booths:
-            operating_hours = OperatingHours.objects.filter(
-                booth=booth).values_list("day_of_week", flat=True)
+        for booth in all_booths:
+            operating_hours = booth.operating_hours.values_list(
+                "day_of_week", flat=True).distinct()
             operation_days = list(set(operating_hours))  # 중복 제거
 
             results.append({
@@ -58,22 +52,27 @@ class BoothSearchView(APIView):
                 "operation_days": operation_days,  # ✅ 영업 요일 리스트 포함
             })
 
-        # ✅ 검색 기록 저장 (로그인 유저만)
         if request.user.is_authenticated:
+            existing_search = SearchHistory.objects.filter(
+                user=request.user, query=query
+            ).first()
+
+        if existing_search:
+            existing_search.save()  # `updated_at` 자동 갱신
+        else:
             SearchHistory.objects.create(user=request.user, query=query)
 
-            # 최근 5개 기록 유지
-            user_search_history = SearchHistory.objects.filter(
-                user=request.user).order_by('-created_at')
-            if user_search_history.count() > 5:
-                user_search_history.last().delete()  # 가장 오래된 기록 삭제
+        # ✅ 검색 기록을 `updated_at` 기준으로 정렬하여 5개까지만 유지
+        user_search_history = SearchHistory.objects.filter(
+            user=request.user).order_by('-updated_at')
+
+        if user_search_history.count() > 5:
+            user_search_history.last().delete()
 
         return Response(
             {
-                "total_results": all_booths.count(),  # 전체 검색 결과 개수
+                "total_results": all_booths.count(),
                 "results": results,
-                "current_page": int(page),
-                "total_pages": paginator.page.paginator.num_pages
             },
             status=status.HTTP_200_OK,
         )
@@ -86,10 +85,11 @@ class SearchHistoryView(APIView):
     def get(self, request):
         user = request.user
         search_history = SearchHistory.objects.filter(
-            user=user).order_by('-created_at')[:5]
+            user=user
+        ).order_by('-updated_at')[:5]  # ✅ updated_at 기준으로 최신 검색어 5개 정렬
 
         # 검색 기록을 JSON 형태로 변환
-        results = [{"query": record.query, "searched_at": record.created_at}
+        results = [{"query": record.query, "searched_at": record.updated_at}
                    for record in search_history]
 
         return Response({"search_history": results}, status=status.HTTP_200_OK)
