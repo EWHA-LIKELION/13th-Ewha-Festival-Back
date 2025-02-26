@@ -4,6 +4,7 @@ from rest_framework.status import *
 from rest_framework.response import Response
 from django.db.models import Q
 from .models import *
+from guestbooks.models import GuestBook
 from scrap.models import *
 from .serializers import *
 from .permissions import *
@@ -43,7 +44,7 @@ class BoothDataMixin:
         return serializer.data
     
     def get_guest_books(self, booth, request):
-        guestbooks = GuestBook.objects.filter(booth=booth)
+        guestbooks = GuestBook.objects.filter(booth=booth).order_by('created_at')
         serializer = BoothGuestBookSerializer(guestbooks, many=True, context={'request': request})
         return serializer.data
 
