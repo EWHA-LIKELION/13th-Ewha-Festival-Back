@@ -1,18 +1,18 @@
 #!/bin/sh
 
 echo "Waiting for database..."
-while ! nc -z db 3306; do
-  sleep 1
+until mysqladmin ping -h db --silent; do
+  sleep 2
+  echo "Waiting for MySQL to be ready..."
 done
-echo "Database ready!"
 
-echo "Applying database migrations..."
-python manage.py migrate accounts
-python manage.py migrate admin
-python manage.py migrate auth
-python manage.py migrate contenttypes
-python manage.py migrate sessions
-python manage.py migrate --noinput
+echo "Database is ready! Running migrations..."
+python manage.py migrate contenttypes --fake-initial
+python manage.py migrate auth --fake-initial
+python manage.py migrate accounts --fake-initial
+python manage.py migrate admin --fake-initial
+python manage.py migrate sessions --fake-initial
+python manage.py migrate --fake-initial
 
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
