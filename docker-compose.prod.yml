@@ -6,9 +6,23 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: sh /home/app/web/config/docker/entrypoint.prod.sh
-    environment:
-      DJANGO_SETTINGS_MODULE: festival.settings.prod
+    command: sh -c "
+      echo 'Waiting for database...' &&
+      until mysqladmin ping -h db --silent; do
+        sleep 2
+        echo 'Waiting for MySQL to be ready...'
+      done &&
+      echo 'Database is ready! Running migrations...' &&
+      python manage.py migrate contenttypes --fake-initial &&
+      python manage.py migrate auth --fake-initial &&
+      python manage.py migrate accounts --fake-initial &&
+      python manage.py migrate admin --fake-initial &&
+      python manage.py migrate sessions --fake-initial &&
+      python manage.py migrate --fake-initial &&
+      echo 'Collecting static files...' &&
+      python manage.py collectstatic --noinput &&
+      echo 'Starting Gunicorn...' &&
+      gunicorn festival.wsgi:application --bind 0.0.0.0:8000"
     env_file:
       - .env
     volumes:
@@ -33,7 +47,7 @@ services:
     env_file:
       - .env
     volumes:
-      - dbdata:/var/lib/mysql  # ✅ dbdata 볼륨 사용
+      - dbdata:/var/lib/mysql  # ✅ dbdata 볼륨 유지
 
   nginx:
     container_name: nginx
@@ -48,7 +62,7 @@ services:
     environment:
       TZ: "Asia/Seoul"
 
-# ✅ 누락된 dbdata 볼륨 추가
+# ✅ 데이터베이스, 정적/미디어 파일 저장을 위한 볼륨
 volumes:
   static:
   media:
