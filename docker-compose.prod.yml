@@ -1,17 +1,16 @@
 version: '3.8'
 
 services:
-  # Django 웹 애플리케이션을 실행
   web:
     container_name: web
     build:
       context: ./
-      dockerfile: Dockerfile.prod  # Dockerfile.prod를 사용해 이미지를 빌드
-    command: sh /home/app/web/config/docker/entrypoint.prod.sh  # entrypoint 스크립트 실행
+      dockerfile: Dockerfile.prod
+    command: sh /home/app/web/config/docker/entrypoint.prod.sh
     environment:
       DJANGO_SETTINGS_MODULE: festival.settings.prod
     env_file:
-      - .env  # 환경 변수를 .env 파일에서 로드
+      - .env
     volumes:
       - static:/home/app/web/static
       - media:/home/app/web/media
@@ -20,7 +19,6 @@ services:
     depends_on:
       - db
 
-  # 데이터베이스 컨테이너 (MySQL)
   db:
     container_name: db
     image: mysql:8.0
@@ -35,12 +33,23 @@ services:
     env_file:
       - .env
     volumes:
-      - dbdata:/var/lib/mysql
+      - dbdata:/var/lib/mysql  # ✅ dbdata 볼륨 사용
 
-  # Nginx를 사용하여 웹 서버를 설정, Django 애플리케이션에 대한 요청을 처리
   nginx:
     container_name: nginx
     build: ./config/nginx
     volumes:
-      - static:/home/app/web/static  # Nginx가 정적 파일을 제공할 수 있도록 설정
-      - media:/home/app/web
+      - static:/home/app/web/static
+      - media:/home/app/web/media
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    environment:
+      TZ: "Asia/Seoul"
+
+# ✅ 누락된 dbdata 볼륨 추가
+volumes:
+  static:
+  media:
+  dbdata:
