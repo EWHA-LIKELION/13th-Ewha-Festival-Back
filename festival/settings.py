@@ -22,6 +22,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTHENTICATION_BACKENDS = (
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Application definition
 
@@ -49,7 +53,11 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework_simplejwt',
     'storages',
-
+    
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
 
 # jwt

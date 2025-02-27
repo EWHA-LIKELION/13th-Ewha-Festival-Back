@@ -24,6 +24,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+SITE_ID = 1
 
 # Application definition
 
@@ -34,10 +35,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
      # 추가한 앱 이름
     'accounts',
     'booths',
@@ -51,7 +58,8 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework_simplejwt',
     'storages',
-
+    
+   
 ]
 
 # jwt
@@ -84,6 +92,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 # cors
