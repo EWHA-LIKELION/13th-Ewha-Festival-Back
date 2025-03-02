@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import *
 
+app_name = 'mypages'
+
 urlpatterns = [
     path("scrapbook/", MyPageScrapView.as_view(), name="mypage-scrapbook"),  # 스크랩북 조회
     path("code/", AdminCodeView.as_view(), name="mypage-admin-code"),  # 관리자 코드 입력

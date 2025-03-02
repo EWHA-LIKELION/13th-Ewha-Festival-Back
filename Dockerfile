@@ -15,8 +15,15 @@ RUN apk add --no-cache \
     g++ \
     make \
     openssl-dev \
-    jpeg-dev \
-    zlib-dev \
+    jpeg-dev \        
+    zlib-dev \      
+    libjpeg \  
+    freetype-dev \
+    lcms2-dev \   
+    libwebp-dev \ 
+    tiff-dev \   
+    harfbuzz-dev \  
+    fribidi-dev \  
     libpq \
     mariadb-dev \
     python3 \
@@ -38,8 +45,11 @@ RUN pip install django-storages boto3
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+# ✅ Pillow 명시적으로 설치 (libjpeg.so.8 문제 해결)
+RUN pip install --no-cache-dir Pillow
+
 # 불필요한 패키지 삭제 (컨테이너 크기 최적화)
-RUN apk del python3-dev mariadb-dev build-base jpeg-dev zlib-dev
+RUN apk del python3-dev mariadb-dev build-base
 
 # 컨테이너 내부 환경 변수 설정 (S3용)
 ENV AWS_ACCESS_KEY_ID=your-access-key
