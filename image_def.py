@@ -2,7 +2,7 @@ from django.conf import settings
 import boto3
 
 class ImageProcessing:
-    ## 이미지 압축 함수
+    ## 이미지 압축 함수    
 
     ## S3 업로드 함수
     def s3_file_upload_by_file_data(upload_file, bucket_path, file_name, content_type=None, extension=None):
