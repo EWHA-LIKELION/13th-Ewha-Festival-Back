@@ -70,7 +70,7 @@ class ImageProcessing:
                 img.save(output, format="PNG", optimize=True)
             elif img_format in ["JPEG", "JPG"]:
                 img = img.convert("RGB")
-                img.save(output, format="JPEG", quality=90, optimize=True, progressive=True)
+                img.save(output, format="JPEG", quality=75, optimize=True, progressive=True)
 
             output.seek(0)
             return output
