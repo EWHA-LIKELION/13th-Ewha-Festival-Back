@@ -5,45 +5,39 @@ from io import BytesIO
 import os
 
 class ImageProcessing:
+    ## 이미지 압축 함수    
     ## S3 업로드 함수
     @staticmethod
     def s3_file_upload_by_file_data(upload_file, bucket_path, file_name, content_type=None, extension=None):
         region_name = settings.AWS_S3_REGION_NAME
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         
-        # 파일 MIME 타입 및 확장자 설정
-        content_type = content_type or upload_file.content_type
-        extension = extension or upload_file.name.split('.')[-1] if hasattr(upload_file, "name") else "bin"
+        if content_type:
+            content_type = content_type
+        else:
+            content_type = upload_file.content_type
+        if extension:
+            extension = extension
+        else:
+            extension = upload_file.name.split('.')[-1]
 
         upload_file_path_name = f"{bucket_path}/{file_name}"
 
         try:
-            # JPEG 또는 PNG 파일이면 자동으로 압축
-            if extension.lower() in ["jpg", "jpeg", "png"]:
-                upload_file = ImageProcessing.compress_image(upload_file)
+            # 이미지 압축 (JPEG, PNG만 해당)
+            compressed_file = ImageProcessing.compress_image(upload_file)
 
-            # S3 업로드
-            s3 = boto3.resource(
-                's3',
-                region_name=region_name,
-                aws_access_key_id=settings.AWS_S3_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_S3_SECRET_ACCESS_KEY
-            )
+            upload_file.seek(0)
+        except Exception:
+            pass
 
-            response = s3.Bucket(bucket_name).put_object(
-                Key=upload_file_path_name,
-                Body=upload_file,
-                ContentType=content_type
-            )
+        s3 = boto3.resource('s3', region_name=region_name, aws_access_key_id=settings.AWS_S3_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_S3_SECRET_ACCESS_KEY)
 
-            if response is not None:
-                return f"https://s3-{region_name}.amazonaws.com/{bucket_name}/{bucket_path}/{file_name}"
-
-        except Exception as e:
-            print(f"S3 업로드 실패: {e}")
+        if s3.Bucket(bucket_name).put_object(Key=upload_file_path_name, Body=upload_file, ContentType=content_type) is not None:
+            return f"https://s3-{region_name}.amazonaws.com/{bucket_name}/{bucket_path}/{file_name}"
 
         return False
-
+    
     @staticmethod
     def compress_image(upload_file):
         """
@@ -62,7 +56,7 @@ class ImageProcessing:
 
             img_format = img.format
             if img_format not in ["PNG", "JPEG", "JPG"]:
-                raise ValueError("지원하지 않는 이미지 포맷")
+                raise ValueError("지원하지 않는 이미지 포맷입니다.")
 
             output = BytesIO()
 
@@ -70,7 +64,7 @@ class ImageProcessing:
                 img.save(output, format="PNG", optimize=True)
             elif img_format in ["JPEG", "JPG"]:
                 img = img.convert("RGB")
-                img.save(output, format="JPEG", quality=75, optimize=True, progressive=True)
+                img.save(output, format="JPEG", quality=90, optimize=True, progressive=True)
 
             output.seek(0)
             return output
@@ -82,9 +76,6 @@ class ImageProcessing:
     
     @staticmethod
     def s3_file_delete(bucket_path, file_name):
-        """
-        S3에서 파일 삭제하는 함수
-        """
         s3_client = boto3.client(
             's3',
             aws_access_key_id=settings.AWS_S3_ACCESS_KEY_ID,
@@ -92,10 +83,4 @@ class ImageProcessing:
             region_name=settings.AWS_S3_REGION_NAME
         )
         key = f"{bucket_path}/{file_name}"
-        
-        try:
-            response = s3_client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=key)
-            return response['ResponseMetadata']['HTTPStatusCode'] == 204
-        except Exception as e:
-            print(f"S3 파일 삭제 실패: {e}")
-            return False
+        s3_client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=key)
