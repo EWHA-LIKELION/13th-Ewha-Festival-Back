@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'scrap',
     'menu',
     'search',
+    'collects',
 
     "corsheaders",
     'rest_framework_simplejwt',
