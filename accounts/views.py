@@ -71,11 +71,13 @@ class DuplicateUsernameView(views.APIView):
                              status=HTTP_200_OK)
 
 #카카오 로그인 
-class KakaoLoginView(views.APIView):
-    def get(self, request):
-        logging.debug("KakaoLoginView 실행")
-        kakao_url =f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_CLIENT_ID}&redirect_uri={KAKAO_REDIRECT_URI}&response_type=code"
-        return redirect(kakao_url)
+# class KakaoLoginView(views.APIView):
+#     def get(self, request):
+#         logging.debug("KakaoLoginView 실행")
+#         kakao_url =f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_CLIENT_ID}&redirect_uri={KAKAO_REDIRECT_URI}&response_type=code"
+        
+#         #return redirect(kakao_url)
+#         return Response({'redirect_url': kakao_url}, status=200) #프론트 코드에 맞게 수정 .. (프론트에서 URL 받아서 이동)
 
 class KakaoCallbackView(views.APIView):
     def get(self, request):         
