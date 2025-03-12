@@ -40,6 +40,7 @@ class NoticeCreateView(APIView):
                 booth=booth,
                 author=request.user  # 현재 로그인한 사용자
             )
+            booth.increase_notice_count()
         
         else:
             return Response({"error": "show_id or booth_id is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -88,6 +89,7 @@ class NoticeDetailView(APIView):
         self.check_object_permissions(request, notice)
 
         notice.delete()
+        notice.booth.decrease_notice_count()
         return Response({"message": "Notice deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
 class OperationNoticeView(APIView):

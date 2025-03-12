@@ -20,6 +20,7 @@ class BoothScrapView(views.APIView):
         Scrap.objects.create(booth=booth, user=request.user)
 
         # ✅ 스크랩 카운트 증가
+        request.user.increase_scrap_count()
         booth.increase_scrap_count()
 
         return Response({
@@ -41,6 +42,7 @@ class BoothScrapView(views.APIView):
         scrap.delete()
 
         # ✅ 스크랩 카운트 감소
+        request.user.decrease_scrap_count()
         booth.decrease_scrap_count()
 
         return Response({
