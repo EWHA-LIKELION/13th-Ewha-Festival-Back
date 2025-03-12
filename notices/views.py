@@ -7,7 +7,6 @@ from rest_framework.status import *
 from .models import Notice, OperationNotice
 from .serializers import NoticeListSerializer, NoticeDetailSerializer, OperationNoticeSerializer
 from booths.models import Booth
-from shows.models import Show
 from .permissions import IsOwnerOrReadOnly
 from django.shortcuts import get_object_or_404
 
@@ -16,47 +15,24 @@ from django.shortcuts import get_object_or_404
 class NoticeCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        # show_id나 booth_id를 받아서 해당 Show나 Booth 객체를 가져옵니다.
-        show_id = request.data.get('show_id')
-        booth_id = request.data.get('booth_id')
-        
-        # Show가 주어진 경우 처리
-        if show_id:
-            show = get_object_or_404(Show, id=show_id)
-            notice = Notice.objects.create(
-                title=request.data.get('title'),
-                content=request.data.get('content'),
-                show=show,
-                author=request.user  # 현재 로그인한 사용자
-            )
-        
-        # Booth가 주어진 경우 처리
-        elif booth_id:
-            booth = get_object_or_404(Booth, id=booth_id)
-            notice = Notice.objects.create(
-                title=request.data.get('title'),
-                content=request.data.get('content'),
-                booth=booth,
-                author=request.user  # 현재 로그인한 사용자
-            )
-            booth.increase_notice_count()
-        
-        else:
-            return Response({"error": "show_id or booth_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # 생성된 공지를 반환
-        serializer = NoticeListSerializer(notice)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-       
-class NoticeListView(APIView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, booth_id,*args, **kwargs):
         # 공지 목록 가져오기 (ListView)
         notices = Notice.objects.all()
         serializer = NoticeListSerializer(notices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+    def post(self, request, booth_id, *args, **kwargs):
+        booth = get_object_or_404(Booth, id=booth_id)
+        notice = Notice.objects.create(
+            title=request.data.get('title'),
+            content=request.data.get('content'),
+            booth=booth # 현재 로그인한 사용자
+        )
+        booth.increase_notice_count()
+        
+        
+        serializer = NoticeListSerializer(notice)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class NoticeDetailView(APIView):
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
