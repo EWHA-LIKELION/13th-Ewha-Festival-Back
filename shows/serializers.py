@@ -48,11 +48,11 @@ class BoothListSerializer(ModelSerializer):
 
 class BoothSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
-    is_manager = SerializerMethodField()
+    role = SerializerMethodField()
 
     class Meta:
         model = Booth
-        fields = ['id', 'is_show', 'is_manager', 'name', 'thumbnail', 'description', 'category',
+        fields = ['id', 'is_show', 'role', 'name', 'thumbnail', 'description', 'category',
                   'contact', 'is_opened', 'scrap_count', 'formatted_location']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
@@ -61,11 +61,11 @@ class BoothSerializer(ModelSerializer):
             obj.location = obj.location[:-1]
         return f"{obj.location}{int(obj.booth_num):02}"
     
-    def get_is_manager(self, obj):
+    def get_role(self, obj):
         request = self.context.get('request')
         if not request.user.is_authenticated:
-            return False
-        return obj == request.user.booth if request else False
+            return "guest"
+        return "admin" if obj == request.user.booth else "user"
 
 class BoothNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
