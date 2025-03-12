@@ -197,3 +197,20 @@ class KakaoCallbackView(views.APIView):
                              'error': serializer.errors},
                              status=HTTP_400_BAD_REQUEST)
 
+class CustomTokenRefreshView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        # 리프레시 토큰을 body에서 추출
+        refresh_token = request.data.get('refresh_token')
+
+        if not refresh_token:
+            return Response({'error': 'Refresh token required'}, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            # 리프레시 토큰 검증 및 새로운 액세스 토큰 발급
+            refresh_token = RefreshToken(refresh_token)
+            access_token = str(refresh_token.access_token)
+
+            return Response({'access_token': access_token}, status=HTTP_200_OK)
+
+        except Exception:
+            return Response({'error': '유효하지 않은 refresh token'}, status=HTTP_401_UNAUTHORIZED)
