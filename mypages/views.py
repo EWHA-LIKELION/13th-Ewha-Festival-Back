@@ -7,6 +7,7 @@ from booths.models import Booth
 from scrap.models import Scrap
 from accounts.models import User
 from .serializers import BoothScrapSerializer, UserSerializer
+from booths.serializers import BoothListSerializer
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from guestbooks.models import GuestBook
 
@@ -46,6 +47,18 @@ class MyPageScrapView(APIView):
 # 마이페이지 - 관리자 코드 입력 API
 class AdminCodeView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        code = request.data.get("code")
+
+        if not code:
+            return Response({"message": "관리자 코드를 입력하세요."}, status=HTTP_400_BAD_REQUEST)
+
+        booth = Booth.objects.filter(code=code)
+        serializer = BoothListSerializer(booth, many=True)
+        
+        return Response(data=serializer.data, status=HTTP_200_OK)
+        
 
     def patch(self, request):
         """마이페이지 - 관리자 코드 입력"""
