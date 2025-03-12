@@ -14,7 +14,7 @@ class GuestBookSerializer(serializers.ModelSerializer):
  
     class Meta:
         model = GuestBook
-        fields = ['booth_id','guestbook_id','username','content','created_at', 'created_ago']
+        fields = ['booth_id','guestbook_id','content','created_at', 'created_ago']
 
     def create(self, validated_data):
         request = self.context.get('request')
