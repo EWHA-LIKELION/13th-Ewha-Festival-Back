@@ -49,7 +49,7 @@ class LoginSerializer(serializers.Serializer):
                 'id': user.id,
                 'username': user.username,
                 'access_token': access,
-                #'refresh_token': refresh,
+                'refresh_token': refresh,
             }
             return data
         else:
