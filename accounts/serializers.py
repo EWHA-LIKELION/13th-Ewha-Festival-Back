@@ -58,6 +58,8 @@ class LoginSerializer(serializers.Serializer):
 class KakaoLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=64)
     password = serializers.CharField(max_length=128, write_only=True)
+    nickname = serializers.CharField(max_length=64, read_only=True)
+
     
     def validate(self, data):
         username = data.get("username", None)
@@ -74,6 +76,7 @@ class KakaoLoginSerializer(serializers.Serializer):
                 data = {
                     'id': user.id,
                     'username': user.username ,
+                    'nickname': user.nickname,
                     'access_token': access
                 }
                 return data
@@ -95,15 +98,16 @@ def generate_random_password(length=16):
 
 class KakaoSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # password 필드 추가
-
+    nickname = serializers.CharField(required=True)  
     class Meta:
         model = User
-        fields = ['id', 'username', 'is_booth', 'password']
+        fields = ['id', 'username','nickname', 'is_booth', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
+            nickname=validated_data['nickname'],
             is_booth=False
         )
         #고정 비밀번호 
