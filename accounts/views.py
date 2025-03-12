@@ -147,6 +147,7 @@ class KakaoCallbackView(views.APIView):
                 'id': user_in_db.id,
                 'username': user_in_db.username,
                 'nickname': user_in_db.nickname,  # 닉네임 추가
+                'password': user_in_db.password, 
                 'access_token': access_token,
                 'refresh_token': refresh_token,  # refresh_token 추가
                 'exist': True,
