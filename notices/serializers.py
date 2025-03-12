@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import Notice, OperationNotice
 from django.utils import timezone
 from booths.models import Booth
-from shows.models import Show
 
 class OperationNoticeSerializer(serializers.ModelSerializer):
     created_date = serializers.SerializerMethodField()

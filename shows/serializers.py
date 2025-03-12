@@ -1,105 +1,109 @@
-from rest_framework import serializers
-from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
-from .models import Show, OperatingHours
+from .models import Booth, Menu, OperatingHours
 from notices.models import Notice
 from guestbooks.models import GuestBook
 
 def format_timedelta(td):
     if td.days >= 1:
         return f"{td.days}일 전"
-    
+
     elif td.seconds // 3600 >= 1:
         return f"{td.seconds // 3600}시간 전"
-    
+
     elif td.seconds // 60 >= 1:
         return f"{td.seconds // 60}분 전"
-    
+
     else:
         return "방금 전"
+    
+class BoothListSerializer(ModelSerializer):
+    formatted_location = SerializerMethodField()
+    images = SerializerMethodField()
+    day_of_week = SerializerMethodField()
 
+    class Meta:
+        model = Booth
+        fields = ['id', 'name', 'is_opened', 'category', 'day_of_week', 'formatted_location', 'scrap_count', 'description', 'images']
 
-class ShowSerializer(serializers.ModelSerializer):
+    def get_formatted_location(self, obj):
+        if obj.location.endswith('관'):
+            obj.location = obj.location[:-1]
+        return f"{obj.location}{int(obj.booth_num):02}"
+    
+    def get_images(self, obj):
+        menus = Menu.objects.filter(booth=obj)
+        images = []
+        images.append(obj.thumbnail)
+        for menu in (menus[0:3] if menus.count()>3 else menus):
+            images.append(menu.thumbnail)
+        return images
+    
+    def get_day_of_week(self, obj):
+        operating_hours = OperatingHours.objects.filter(booth=obj)
+        day_of_week = []
+        for day in operating_hours:
+            day_of_week.append(day.day_of_week)
+        return day_of_week
+
+class BoothSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     is_manager = SerializerMethodField()
 
     class Meta:
-        model = Show
-        fields = ['id', 'is_manager', 'title', 'thumbnail', 'description', 'category', 'location', 'is_opened', 'scrap_count', 'formatted_location']
+        model = Booth
+        fields = ['id', 'is_show', 'is_manager', 'name', 'thumbnail', 'description', 'category',
+                  'contact', 'is_opened', 'scrap_count', 'formatted_location']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_formatted_location(self, obj):
-        # '관'을 제외하고 포맷팅
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
-        return f"{obj.location}{int(obj.show_num):02}"
+        return f"{obj.location}{int(obj.booth_num):02}"
     
     def get_is_manager(self, obj):
-        # 관리자 권한 체크
         request = self.context.get('request')
-        if not request or not request.user.is_authenticated:
+        if not request.user.is_authenticated:
             return False
-        return obj == request.user.show
-    
-class ShowNoticeSerializer(serializers.ModelSerializer):
+        return obj == request.user.booth if request else False
+
+class BoothNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
 
     class Meta:
         model = Notice
         fields = ['title', 'content', 'formatted_created_at']
+
         read_only_fields = ['created_at', 'updated_at']
 
     def get_formatted_created_at(self, obj):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
     
-    def get_location(self, obj):
-        show = obj.show
-        return show.location
-    
-class ShowGuestBookSerializer(serializers.ModelSerializer):
-    nickname = SerializerMethodField()
+
+class BoothGuestBookSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
     is_author = SerializerMethodField()
-
+    
     class Meta:
-        model = GuestBook 
-        fields = ['nickname', 'content', 'is_author', 'formatted_created_at']
+        model = GuestBook
+        fields = ['id', 'username', 'content', 'is_author', 'formatted_created_at']
 
-    def get_nickname(self, obj):
-        return obj.user.nickname
-        
     def get_formatted_created_at(self, obj):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
-        
+    
     def get_is_author(self, obj):
         request = self.context.get('request')
         return obj.user == request.user if request else False
-    
-class ShowPatchSerializer(serializers.ModelSerializer):
-    operating_hours = serializers.SerializerMethodField()
 
+class BoothPatchSerializer(ModelSerializer):
     class Meta:
-        model = Show
-        fields = ['id', 'title', 'category', 'location', 'description', 'contact', 'thumbnail', 'operating_hours']
+        model = Booth
+        fields = ['id', 'thumbnail', 'name', 'description', 'contact', 'is_opened', 'notice_count']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-    def get_operating_hours(self, obj):
-        operating_hours = []
-        # show 객체에 연결된 operating_hours 정보가 있을 경우 반환
-        for operating_hour in obj.operating_hours.all():
-            operating_hours.append({
-                "show": obj.id,
-                "date": operating_hour.date,
-                "day_of_week": operating_hour.day_of_week,
-                "open_time": operating_hour.open_time,
-                "close_time": operating_hour.close_time
-            })
-        return operating_hours
-    
-
-class OperatingHoursPatchSerializer(serializers.ModelSerializer):
+class OperatingHoursPatchSerializer(ModelSerializer):
     class Meta:
         model = OperatingHours
-        fields = ['show', 'date', 'day_of_week', 'open_time', 'close_time']
+        fields = ['booth', 'date', 'day_of_week', 'open_time', 'close_time']

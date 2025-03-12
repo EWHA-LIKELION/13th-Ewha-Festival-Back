@@ -26,7 +26,7 @@ class BoothDataMixin:
         operating_hours = OperatingHours.objects.filter(booth=booth).order_by('date')
         data = []
         for hours in operating_hours:
-            data.append(f'{hours.date} {hours.day_of_week} {hours.open_time} ~ {hours.close_time}')
+            data.append(f'{hours.date}일 {hours.day_of_week} {hours.open_time} ~ {hours.close_time}')
         return data
     
     def get_is_scrap(self, user, booth):
@@ -162,14 +162,9 @@ class BoothPatchView(BoothPatchMixin, APIView):
     def get(self, request, booth_id):
         booth_data = self.get_booth_patch_data(booth_id)
         operating_hours = self.get_operating_hours_patch(booth_id)
-        notice_count = Notice.objects.filter(booth=booth_id).count()
-        menu_count = Menu.objects.filter(booth=booth_id).count()
-
         data = {
             "booth": booth_data,
-            "operating_hours": operating_hours,
-            "notice_count": notice_count,
-            "menu_count": menu_count
+            "operating_hours": operating_hours
         }
 
         return Response(data=data, status=HTTP_200_OK)

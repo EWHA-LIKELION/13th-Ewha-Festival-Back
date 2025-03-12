@@ -7,7 +7,6 @@ from django.utils.timesince import timesince
 class GuestBookSerializer(serializers.ModelSerializer):
     guestbook_id = serializers.IntegerField(source='id', read_only=True)
     #user_nickname = serializers.CharField(source='user.nickname', read_only=True)
-    anoymous_nickname = serializers.SerializerMethodField()
     booth_id = serializers.IntegerField(source='booth.id', read_only=True)
 
     #시간 변환 위해 새로 만든 필드(2시간 전)
@@ -15,19 +14,12 @@ class GuestBookSerializer(serializers.ModelSerializer):
  
     class Meta:
         model = GuestBook
-        fields = ['booth_id','guestbook_id','anoymous_nickname','content','created_at', 'created_ago']
+        fields = ['booth_id','guestbook_id','username','content','created_at', 'created_ago']
 
     def create(self, validated_data):
         request = self.context.get('request')
         validated_data['user'] = request.user
         return super().create(validated_data)
-    
-    def get_anoymous_nickname(self,obj):
-        booth_id = obj.booth.id
-        # 현재 글이 몇 번째로 작성되었는지 확인
-        guestbooks = GuestBook.objects.filter(booth=obj.booth).order_by('created_at')
-        guestbook_index = list(guestbooks.values_list('id', flat=True)).index(obj.id) + 1
-        return f"익명{guestbook_index}" 
     
     def get_created_ago(self, obj):
         # timesince 함수: 현재 시간 & 특정 날짜 사이의 차이 문자열로 변환
