@@ -15,6 +15,15 @@ class User(AbstractUser):
     show = models.ForeignKey(Show, on_delete=models.SET_NULL, null=True, blank=True)
     scrap_count = models.IntegerField(default=0)
 
+    def increase_scrap_count(self):
+        self.scrap_count += 1
+        self.save(update_fields=['scrap_count'])
+
+    def decrease_scrap_count(self):
+        if self.scrap_count > 0:
+            self.scrap_count -= 1
+            self.save(update_fields=['scrap_count'])
+
     def __str__(self):
         return self.username
     
