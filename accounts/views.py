@@ -141,14 +141,13 @@ class KakaoCallbackView(views.APIView):
             token = RefreshToken.for_user(user_in_db)
             access_token = str(token.access_token)
             refresh_token = str(token)
-            raw_password = user_in_db.raw_password
 
             # kakao계정으로 이미 로그인한 적 있다면 -> rest-auth 로그인
             user_data = {
                 'id': user_in_db.id,
                 'username': user_in_db.username,
                 'nickname': user_in_db.nickname,  # 닉네임 추가
-                'password': raw_password, 
+                'password':  KAKAO_PASSWORD, 
                 'access_token': access_token,
                 'refresh_token': refresh_token,  # refresh_token 추가
                 'exist': True,
@@ -168,13 +167,11 @@ class KakaoCallbackView(views.APIView):
                              status=HTTP_400_BAD_REQUEST)
 
         except User.DoesNotExist:
-            # 랜덤 패스워드 생성
-            random_password = generate_random_password()   
             # 자동 회원가입 처리
             request_data = {
                 'username': nickname + social_id,
                 'nickname': nickname,
-                'password': random_password  # 랜덤 패스워드 사용
+                'password': KAKAO_PASSWORD  # 랜덤 패스워드 사용
             }
 
             # 바로 회원가입 처리

@@ -14,6 +14,7 @@ class User(AbstractUser):
     is_show = models.BooleanField(default=False)
     show = models.ForeignKey(Show, on_delete=models.SET_NULL, null=True, blank=True)
     scrap_count = models.IntegerField(default=0)
+    raw_password = models.CharField(max_length=128, null=True, blank=True)  # ✅ 평문 비밀번호 저장 필드 추가
 
     def __str__(self):
         return self.username
