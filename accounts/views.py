@@ -6,8 +6,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken  
 from .models import *
 from .serializers import *
-from .serializers import generate_random_password
-
 import requests
 import os
 import environ
