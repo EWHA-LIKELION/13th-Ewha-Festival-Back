@@ -108,7 +108,7 @@ class BoothGuestBookSerializer(ModelSerializer):
 class BoothPatchSerializer(ModelSerializer):
     class Meta:
         model = Booth
-        fields = ['id', 'thumbnail', 'name', 'description', 'contact', 'is_opened']
+        fields = ['id', 'thumbnail', 'name', 'description', 'contact', 'is_opened', 'menu_count', 'notice_count']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 class OperatingHoursPatchSerializer(ModelSerializer):

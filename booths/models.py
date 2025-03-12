@@ -40,6 +40,8 @@ class Booth(models.Model):
     is_opened = models.BooleanField(default=True)
     is_show = models.BooleanField(default=False)
     scrap_count = models.IntegerField(default=0)
+    menu_count = models.IntegerField(default=0)
+    notice_count = models.IntegerField(default=0)
     location = models.CharField(choices=LOCATION_CHOICES, max_length=10)
     booth_num = models.IntegerField()
     code = models.CharField(max_length=50, unique=True)
@@ -55,6 +57,24 @@ class Booth(models.Model):
         if self.scrap_count > 0:
             self.scrap_count -= 1
             self.save(update_fields=['scrap_count'])
+
+    def increase_menu_count(self):
+        self.menu_count += 1
+        self.save(update_fields=['menu_count'])
+
+    def decrease_menu_count(self):
+        if self.menu_count > 0:
+            self.menu_count -= 1
+            self.save(update_fields=['menu_count'])
+
+    def increase_notice_count(self):
+        self.notice_count += 1
+        self.save(update_fields=['notice_count'])
+
+    def decrease_notice_count(self):
+        if self.notice_count > 0:
+            self.notice_count -= 1
+            self.save(update_fields=['notice_count'])
 
     def __str__(self):
         return self.name

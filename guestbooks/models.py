@@ -5,6 +5,7 @@ from booths.models import Booth
 # Create your models here.
 class GuestBook(models.Model):
     user= models.ForeignKey(User, on_delete=models.CASCADE, related_name='guestbook_author')
+    username = models.CharField(max_length=10)
     booth = models.ForeignKey(Booth, on_delete=models.CASCADE, related_name='guestbook_booth')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
