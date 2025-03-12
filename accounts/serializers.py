@@ -85,22 +85,29 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, 'env.prod'))
 KAKAO_PASSWORD = os.environ.get('KAKAO_PASSWORD')
+import secrets #랜덤 비밀번호 설정을 위함 
+import string #랜덤 비밀번호 설정을 위함 
 
+def generate_random_password(length=16):
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(secrets.choice(alphabet) for _ in range(length))
+    return password
 
 class KakaoSignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)  # password 필드 추가
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'is_booth']  # password 제외
+        fields = ['id', 'username', 'is_booth', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
-            password=KAKAO_PASSWORD, 
             is_booth=False
         )
         #고정 비밀번호 
-        user.set_password(KAKAO_PASSWORD)
+        user.set_password(validated_data['password'])
         user.save()
 
         return user

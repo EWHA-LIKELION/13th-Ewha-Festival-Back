@@ -10,5 +10,5 @@ urlpatterns = [
         #프론트와 중복된 코드
         #path('kakao/', KakaoLoginView.as_view()),
         path('kakao/',KakaoCallbackView.as_view()),
-        path('kakao/signup/', KakaoSignupView.as_view()),
+        #path('kakao/signup/', KakaoSignupView.as_view()),
 ]
