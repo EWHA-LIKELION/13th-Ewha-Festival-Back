@@ -57,7 +57,7 @@ class LoginSerializer(serializers.Serializer):
         
 class KakaoLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=64)
-    password = serializers.CharField(max_length=128, write_only=True, required=False)
+    password = serializers.CharField(max_length=128, write_only=True)
     nickname = serializers.CharField(max_length=64, read_only=True)
 
     
