@@ -141,13 +141,14 @@ class KakaoCallbackView(views.APIView):
             token = RefreshToken.for_user(user_in_db)
             access_token = str(token.access_token)
             refresh_token = str(token)
+            raw_password = user_in_db.raw_password
 
             # kakao계정으로 이미 로그인한 적 있다면 -> rest-auth 로그인
             user_data = {
                 'id': user_in_db.id,
                 'username': user_in_db.username,
                 'nickname': user_in_db.nickname,  # 닉네임 추가
-                'password': user_in_db.password, 
+                'password': raw_password, 
                 'access_token': access_token,
                 'refresh_token': refresh_token,  # refresh_token 추가
                 'exist': True,

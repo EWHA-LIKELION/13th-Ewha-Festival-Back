@@ -105,13 +105,18 @@ class KakaoSignupSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        # ✅ 평문 비밀번호 따로 저장 가능하도록 수정
+        raw_password = validated_data['password']
         user = User.objects.create(
             username=validated_data['username'],
             nickname=validated_data['nickname'],
             is_booth=False
         )
-        #고정 비밀번호 
+        #고정 비밀번호(비밀번호 해시 저장)
         user.set_password(validated_data['password'])
         user.save()
 
+        # ✅ 평문 비밀번호 저장을 위해 `raw_password` 필드에 추가
+        user.raw_password = raw_password 
+        
         return user
