@@ -86,16 +86,12 @@ class BoothMenuSerializer(ModelSerializer):
         fields = ['thumbnail', 'name', 'price', 'is_sale']
 
 class BoothGuestBookSerializer(ModelSerializer):
-    username = SerializerMethodField()
     formatted_created_at = SerializerMethodField()
     is_author = SerializerMethodField()
     
     class Meta:
         model = GuestBook
         fields = ['id', 'username', 'content', 'is_author', 'formatted_created_at']
-
-    def get_username(self, obj):
-        return obj.user.username
 
     def get_formatted_created_at(self, obj):
         time_difference = timezone.now() - obj.created_at

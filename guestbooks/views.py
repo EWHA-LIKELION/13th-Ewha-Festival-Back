@@ -30,7 +30,15 @@ class GuestBookView(views.APIView):
                                            context={'request': request})
         
         if serializer.is_valid(raise_exception=True):
-            serializer.save(booth=booth)
+            booth_guestbook = GuestBook.objects.filter(booth_id=booth_id)
+            if booth_guestbook.filter(user=request.user).exists():
+                username = f"{booth_guestbook.filter(user=request.user).first().username}"
+                serializer.save(booth=booth, username=username)
+
+            else:
+                username = f"익명 {booth_guestbook.values('user').distinct().count()+1}"
+                serializer.save(booth=booth, username=username)
+
             return Response({'message': '방명록 작성 성공!', 'data': serializer.data}, 
                             status=HTTP_200_OK)
         else:
