@@ -89,7 +89,7 @@ class BoothListView(APIView, PaginationHandlerMixin):
                 q2 &= Q(day_of_week__in = day_of_week)
                 if not OperatingHours.objects.filter(q2).exists():
                     booths.exclude(id=booth.id)
-
+        booths = booths.order_by('name')
         page = self.paginate_queryset(booths)
         if page is not None:
             serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
