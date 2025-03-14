@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
-from .models import Booth, Menu, OperatingHours
+from booths.models import Booth, Menu, OperatingHours
 from notices.models import Notice
 from guestbooks.models import GuestBook
 

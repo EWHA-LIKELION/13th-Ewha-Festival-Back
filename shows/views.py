@@ -92,9 +92,9 @@ class ShowListView(APIView, PaginationHandlerMixin):
             serializer = self.serializer_class(booths, many=True)    
 
         response = {
-            "booth_count": booths.count(),
+            "show_count": booths.count(),
             "page_count": booths.count()//10 +1,
-            "booth": serializer.data
+            "show": serializer.data
         }
         
         return Response(data=response, status=HTTP_200_OK)
