@@ -22,7 +22,7 @@ class ImageProcessing:
         print(f"▶ 원본 파일 타입: {content_type}")
 
         try:
-            # 이미지 압축 (JPEG, PNG만 해당)
+            # 이미지 압축 (모든 포맷을 JPEG로 통일)
             compressed_file = ImageProcessing.compress_image(upload_file)
             compressed_file.seek(0)
 
@@ -42,7 +42,7 @@ class ImageProcessing:
             s3.Bucket(bucket_name).put_object(
                 Key=upload_file_path_name,
                 Body=compressed_file,
-                ContentType=content_type
+                ContentType='image/jpeg'  # ✅ 통일된 포맷으로 저장
             )
 
             print(f"S3 업로드 성공: {file_name}")
@@ -71,8 +71,14 @@ class ImageProcessing:
             # ✅ 포맷이 None일 경우 확장자로 보완
             img_format = img.format or upload_file.name.split('.')[-1].upper()
 
-            if img_format not in ["PNG", "JPEG", "JPG"]:
-                raise ValueError(f"지원하지 않는 이미지 포맷입니다: {img_format}")
+            # ✅ PNG의 경우 JPEG로 변환 (투명도 제거)
+            if img_format == "PNG":
+                # 투명도를 흰색 배경으로 채움
+                img = img.convert("RGBA")
+                background = pil.new("RGB", img.size, (255, 255, 255))  # 흰색 배경 생성
+                background.paste(img, mask=img.split()[3])  # 투명 부분 흰색 채우기
+                img = background
+                img_format = "JPEG"  # ✅ 포맷을 JPEG로 통일
 
             # ✅ 리사이징 수행 (파일 크기 초과 또는 해상도 초과 시)
             if file_size > ImageProcessing.MAX_FILE_SIZE or max(src_width, src_height) > ImageProcessing.MAX_WIDTH:
@@ -88,18 +94,9 @@ class ImageProcessing:
 
             output = BytesIO()
 
-            # ✅ PNG 저장 최적화
-            if img_format == "PNG":
-                if img.mode != "RGBA":
-                    img = img.convert("RGBA")
-                img.save(output, format="PNG", optimize=True)
-
             # ✅ JPEG 저장 시 품질 고정 + 최적화 제거
-            elif img_format in ["JPEG", "JPG"]:
-                img = img.convert("RGB")
-
-                # ✅ 품질 고정값을 85로 설정 (너무 높으면 용량 증가 위험)
-                img.save(output, format="JPEG", quality=80)
+            img = img.convert("RGB")
+            img.save(output, format="JPEG", quality=70)  # ✅ 통일된 포맷으로 저장
 
             output.seek(0)
 
