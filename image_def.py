@@ -64,12 +64,6 @@ class ImageProcessing:
             print(f"원본 해상도: {src_width}x{src_height}")
             print(f"원본 파일 크기: {file_size / 1024:.2f} KB")
 
-            # EXIF 회전 보정
-            try:
-                img = ImageOps.exif_transpose(img)
-            except Exception:
-                pass
-
             # ✅ 포맷이 None일 경우 확장자로 보완
             img_format = img.format or upload_file.name.split('.')[-1].upper()
 
