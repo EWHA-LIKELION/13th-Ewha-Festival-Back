@@ -26,12 +26,15 @@ class ImageProcessing:
             compressed_file = ImageProcessing.compress_image(upload_file)
             compressed_file.seek(0)
 
-            print(f"압축 완료: 압축 후 파일 크기 {compressed_file.getbuffer().nbytes / 1024:.2f} KB")
+            # ✅ getbuffer() → BytesIO 변환으로 수정
+            compressed_file_size = len(compressed_file.getvalue()) 
+            print(f"압축 완료: 압축 후 파일 크기 {compressed_file_size / 1024:.2f} KB")
 
         except Exception as e:
             print(f"이미지 압축 실패: {e}")
+            # ✅ BytesIO로 변환 후 업로드 시도
             upload_file.seek(0)
-            compressed_file = upload_file
+            compressed_file = BytesIO(upload_file.read()) 
 
         s3 = boto3.resource('s3',
                             region_name=region_name,
@@ -67,11 +70,14 @@ class ImageProcessing:
             except Exception:
                 pass
 
-            img_format = img.format
-            if img_format not in ["PNG", "JPEG", "JPG"]:
-                raise ValueError("지원하지 않는 이미지 포맷입니다.")
+            # ✅ 포맷이 None일 경우 확장자로 보완
+            img_format = img.format or upload_file.name.split('.')[-1].upper()
 
-            # 리사이징 수행 (파일 크기 초과 또는 해상도 초과 시)
+            # ✅ 포맷 허용 범위 강화
+            if img_format not in ["PNG", "JPEG", "JPG"]:
+                raise ValueError(f"지원하지 않는 이미지 포맷입니다: {img_format}")
+
+            # ✅ 리사이징 수행 (파일 크기 초과 또는 해상도 초과 시)
             if file_size > ImageProcessing.MAX_FILE_SIZE or max(src_width, src_height) > ImageProcessing.MAX_WIDTH:
                 if src_width > src_height:
                     dst_width = ImageProcessing.MAX_WIDTH
@@ -85,13 +91,15 @@ class ImageProcessing:
 
             output = BytesIO()
 
-            # PNG 처리
             if img_format == "PNG":
+                if img.mode != "RGBA":
+                    img = img.convert("RGBA")  # ✅ PNG 투명도 유지
                 img.save(output, format="PNG", optimize=True)
+
             elif img_format in ["JPEG", "JPG"]:
                 img = img.convert("RGB")
 
-                # 파일 크기 초과 시 품질을 동적으로 낮춤
+                # ✅ 품질 자동 조정
                 quality = 90
                 img.save(output, format="JPEG", quality=quality, optimize=True, progressive=True)
 
@@ -103,14 +111,16 @@ class ImageProcessing:
 
             output.seek(0)
 
-            print(f"압축 후 파일 크기: {output.getbuffer().nbytes / 1024:.2f} KB")
+            # ✅ getbuffer() 대신 len 사용
+            compressed_size = len(output.getvalue())
+            print(f"압축 후 파일 크기: {compressed_size / 1024:.2f} KB")
 
             return output
 
         except Exception as e:
             print(f"이미지 압축 실패: {e}")
             upload_file.seek(0)
-            return upload_file
+            return BytesIO(upload_file.read())  # ✅ BytesIO로 변환 후 반환
 
     @staticmethod
     def s3_file_delete(bucket_path, file_name):
