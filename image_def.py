@@ -99,7 +99,7 @@ class ImageProcessing:
                 img = img.convert("RGB")
 
                 # ✅ 품질 고정값을 85로 설정 (너무 높으면 용량 증가 위험)
-                img.save(output, format="JPEG", quality=85)
+                img.save(output, format="JPEG", quality=80)
 
             output.seek(0)
 
