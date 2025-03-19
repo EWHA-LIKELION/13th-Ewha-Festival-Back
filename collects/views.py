@@ -10,6 +10,8 @@ def create_booth(request):
         contact = request.POST.get('contact')
         location = request.POST.get('location')
         booth_num = request.POST.get('booth_num')
+        thumbnail = request.FILES.get('thumbnail')
+
         try:
             booth_num = int(booth_num)
         except (TypeError, ValueError):
@@ -47,9 +49,6 @@ def create_booth(request):
     return render(request, 'booth_create.html')
 
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from booths.models import Menu, Booth
 
 def create_menu(request):
     if request.method == "POST":
@@ -57,12 +56,17 @@ def create_menu(request):
         booth_ids = request.POST.getlist('booth')
         names = request.POST.getlist('name')
         prices = request.POST.getlist('price')
-        
-        # 기본적인 길이 체크
+        thumbnails = request.FILES.getlist('thumbnail')
+
+        # 데이터 개수 일치 처리
         if not (len(booth_ids) == len(names) == len(prices)):
             messages.error(request, "입력한 데이터에 오류가 있습니다.")
             return redirect('create_menu')
         
+        # 메뉴 썸네일을 메뉴보다 적게 업로드하면 None 처리
+        if len(thumbnails) < len(booth_ids):
+            thumbnails.extend([None] * (len(booth_ids) - len(thumbnails)))
+
         # 각 항목별로 Menu 객체 생성
         for i in range(len(names)):
             try:
@@ -80,6 +84,7 @@ def create_menu(request):
                 booth=booth,
                 name=names[i],
                 price=price,
+                thumbnail=thumbnails[i]
             )
         messages.success(request, "메뉴가 성공적으로 등록되었습니다.")
         return redirect('menu_list')

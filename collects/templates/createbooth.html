@@ -1,4 +1,4 @@
-<form method="POST" action="{% url 'create_booth' %}">
+<form method="POST" action="{% url 'collects:create_booth' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="name">부스 이름:</label>
     <input type="text" id="name" name="name" required><br>
@@ -29,9 +29,13 @@
         <option value="스포츠트랙">스포츠트랙</option>
     </select><br>
 
-    <!-- 추가된 booth_num 입력 필드 -->
+    <!-- 부스 번호 입력 -->
     <label for="booth_num">부스 번호:</label>
     <input type="number" id="booth_num" name="booth_num" required><br>
+    
+    <!-- 썸네일 이미지 파일 입력 -->
+    <label for="thumbnail">썸네일 이미지:</label>
+    <input type="file" id="thumbnail" name="thumbnail" accept="image/*" required><br>
 
     <!-- 날짜별 운영 시간 입력 -->
     <h3>운영 시간</h3>

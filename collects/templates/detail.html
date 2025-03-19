@@ -1,0 +1,243 @@
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message }}");
+        {% endfor %}
+    </script>
+{% endif %}
+<title>{{ event.name }}</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        margin-top: 0;
+        color: #333;
+    }
+    .detail h2 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .detail p {
+        margin-top: 5px;
+        margin-bottom: 5px;
+        color: #666;
+    }
+    .detail a {
+        text-decoration: none;
+        color: #007bff;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    .btn-delete {
+        background-color: #dc3545; /* 빨간색 */
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn-delete:hover {
+        background-color: #c82333; /* 진한 빨간색 */
+    }
+    input[type="text"],
+        input[type="password"],
+        input[type="int"],
+        select,
+        textarea {
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        button[id="add"] {
+            background-color: #45a049;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+</style>
+<form action="{% url 'collects:event_list' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; ">목록으로</button>
+</form>
+
+<form action="{% url 'collects:event_update' event.id %}" method="post" enctype="multipart/form-data" onsubmit="return checkTime()">
+    {% csrf_token %}    
+    <h3>이름: </h3>
+    <p> 
+        &nbsp;&nbsp;<input type="text" name="name" value="{{ event.name }}" maxlength="14" style="width: 250" placeholder="부스명을 입력해주세요 (최대 14자)" oninput="checkLength()">
+    </p>
+    
+
+    <h3>부스 타입</h3>
+    어떤 부스인지 선택해주세요<br>
+    나중에 실시간으로 변경 불가능합니다!!!
+
+    <p>(대동제 홈페이지에서 실시간 변경불가, 카테고리 항목 추가 요청있다면 멋사로)<br>
+        ‘기획부스’ 또는 ‘권리팀부스’ 또는 ‘대외협력팀부스’ 中 택 1<br>
+        <select name="type">
+            <option value="기획부스" {% if booth.category == '기획부스' %} selected {% endif %}>기획부스</option>
+            <option value="권리팀부스" {% if booth.category == '권리팀부스' %} selected {% endif %}>권리팀부스</option>
+            <option value="대외협력팀부스" {% if booth.category == '대외협력팀부스' %} selected {% endif %}>대외협력팀부스</option></select>
+            </p>
+
+    <h3>장소</h3>
+    나중에 실시간으로 변경 불가능합니다!!!
+    <p>
+        &nbsp;&nbsp;<input type="text" name="place" value="{{ event.place }}" style="width: 250" placeholder="부스 위치를 입력해주세요">
+    </p>
+    
+
+
+
+    <h3>소개글</h3>
+    [텍스트] 상세 설명, 글자수 제한 100 / 문자 조건 없음(이모티콘 가능)
+    <p>
+        &nbsp;&nbsp;<textarea name="description" maxlength="100" placeholder="부스에 대해 알리는 소개글을 작성해주세요(최대 100자)" oninput="if(this.value.length > 100) this.value = this.value.slice(0, 100)" cols="70" rows="5">{{ event.description }}</textarea>
+    </p>
+    <h3>운영진 연락처: </h3>
+    <p>
+        부스 운영진과 연락 가능한 연락처 링크(오픈채팅방, 카톡채널, 인스타그램 등)를 입력해주세요<br>
+        빈칸으로 두셔도 됩니다!<br>
+        &nbsp;&nbsp;<input type="text" name="contact" style="width: 400;" value="{{ event.contact }}">
+    </p>
+    <h3>실시간 공지사항: </h3>
+    <p>
+        [텍스트] 100자 이하, 문자 조건 없음(이모티콘 가능)<br>
+        - 계속해서 실시간으로 수정 가능한 공지사항 전달 창구입니다. 첫날 부스 오픈 이전에 미리 전달하고 싶은 내용이 있다면 작성해주세요.<br>
+         만약 없다면 비워주셔도 괜찮습니다. 직접 수정 전까지 ‘아직 공지사항이 없습니다.’라는 문구가 들어갈 예정입니다.<br>&nbsp;&nbsp;
+        <textarea name="realtime" maxlength="100" placeholder="실시간으로 알리고 싶은 정보를 작성해주세요(최대 100자)" cols="70" rows="5">{{ event.realtime }}</textarea>
+    </p>
+    <h3>운영 시간:</h3>
+    <p> (예: 9:00 ~ 14:00)<br> 
+        [선택지] ‘8일 수요일’ 또는 ‘9일 목요일’ 또는 ‘10일 금요일’ 中 해당하는 모든 선택지 중복 선택<br>
+        선택한 날짜에 대해 운영 시간 입력. 체크하지 않을 경우 반영되지 않음.<br>
+        반드시 24시간제 시간 표기법으로 시:분 형식으로 표기해 주세요.<br>
+    </p>
+    운영 시간은 수정 최소화 부탁드립니다!
+    <ul>
+        <p>
+            <input type="checkbox" name="day1" id="day1_checked" {% if day1.check %} checked {% endif %}>
+            <label for="day1">8일 수요일 
+                    시작시간:
+                    <input type="text" name="start_time_8" value="{{ day1.start_time }}"> 
+                    끝나는시간:
+                    <input type="text" name="end_time_8" value="{{ day1.end_time }}">
+            </label>
+        </p>
+        <p>
+            <input type="checkbox" name="day2" id="day2_checked" {% if day2.check %} checked {% endif %}>
+            <label for="day2">9일 목요일 
+                    시작시간:
+                    <input type="text" name="start_time_9" value="{{ day2.start_time }}"> 
+                    끝나는시간:
+                    <input type="text" name="end_time_9" value="{{ day2.end_time }}">
+            </label>
+        </p>
+        <p>
+            
+            <input type="checkbox" name="day3" id="day3_checked" {% if day3.check %} checked {% endif %}>
+            <label for="day3">10일 금요일 
+                    시작시간:
+                    <input type="text" name="start_time_10" value="{{ day3.start_time }}"> 
+                    끝나는시간:
+                    <input type="text" name="end_time_10" value="{{ day3.end_time }}">
+            </label>
+        </p>
+
+    </ul>
+    <h3>썸네일</h3>
+    <p>
+        등록된 이미지:
+        <img src="{{ event.thumnail }}" alt="부스 썸네일" style="max-width: 100px;"><br>
+        <br>
+        [이미지] 1장, 정사각형 또는 가로로 긴 직사각형의 이미지<br>
+        <input name="image" type="file">
+    </p>
+    <br>
+    <button type="submit">저장하기</button>
+</form>
+<form action="{% url 'collects:event_delete' event.id %}" method="post">
+    {% csrf_token %}
+    <button class="btn-delete" type="submit">삭제</button>
+</form>
+
+
+<script>
+    function checkLength() {
+            var input = document.getElementById("boothName");
+            if (input.value.length > 14) {
+                input.value = input.value.substring(0, 14);
+            }
+        }
+    function checkTime() {
+        const checkbox1 = document.getElementById('day1_checked');
+        const is_checked1 = checkbox1.checked;
+        var start_time_8 = document.getElementsByName("start_time_8")[0].value;
+        var end_time_8 = document.getElementsByName("end_time_8")[0].value;
+        if (is_checked1 && (start_time_8.trim() === '' || end_time_8.trim() === '')) {
+            alert("시작 시간과 종료 시간을 입력해주세요!");
+            return false;
+        }
+
+        const checkbox2 = document.getElementById('day2_checked');
+        const is_checked2 = checkbox2.checked;
+        var start_time_9 = document.getElementsByName("start_time_9")[0].value;
+        var end_time_9 = document.getElementsByName("end_time_9")[0].value;
+        if (is_checked2 &&(start_time_9.trim() === '' || end_time_9.trim() === '')) {
+            alert("시작 시간과 종료 시간을 입력해주세요!");
+            return false;
+        }
+
+        const checkbox3 = document.getElementById('day3_checked');
+        const is_checked3 = checkbox3.checked;
+        var start_time_10 = document.getElementsByName("start_time_10")[0].value;
+        var end_time_10 = document.getElementsByName("end_time_10")[0].value;
+        if (is_checked3 && (start_time_10.trim() === '' || end_time_10.trim() === '')) {
+            alert("시작 시간과 종료 시간을 입력해주세요!");
+            return false;
+        }
+        return true;
+    }
+</script>
