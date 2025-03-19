@@ -1,0 +1,122 @@
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message }}");
+        {% endfor %}
+    </script>
+{% endif %}
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select,
+        textarea {
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+</style>
+
+<div class="container my-3">
+    <form method="post" action="{% url 'collects:login' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="username">아이디</label>
+            <input type="text" class="form-control" name="username" id="username"
+                    value="{{ form.username.value|default_if_none:'' }}">
+        </div>
+        <div class="mb-3">
+            <label for="password">비밀번호</label>
+            <input type="password" class="form-control" name="password" id="password"
+                    value="{{ form.password.value|default_if_none:'' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">로그인</button>
+    </form>
+</div>
+
+
+<div style="float: left; width: 50%;">
+    <h2><자신의 계정 정보 - 부스 운영자></h2>
+<h4>아이디: 부스장소 + 부스 번호 + 영업일 <br>비밀번호: 1234</h4> 
+
+    <h4>부스 장소목록</h4>
+        <li>학문관 → student</li>
+        <li>생활관 → human</li>
+        <li>포스코관 → posco</li>
+        <li>휴웃길 → phew</li>
+        <li>학관 → hak</li>
+        <li>정문 → main</li>
+        <li>대강당 → hall</li>
+        <li>신세계관 → new</li>
+        <li>교육관 → study</li>
+    </ul>
+
+    <h4>부스 번호</h4>
+    <li>1번 → 01</li>
+    <li>34번 → 34</li>
+
+
+
+    <h4>영업일</h4>
+    수, 목, 금요일 중 영업하는 날만 입력 <br>
+    수 → 1, 목 → 2 금 → 3<br>
+
+    <h4>공연시간</h4>
+
+    <h4>예시</h4>
+    <li>학문관 1번 부스에서 수, 목요일 영업
+        = student0112</li>
+    <li>대강당 12번 부스에서 금요일만 영업
+        = hall123
+        
+    </div>
+
+    <div style="float: right; width: 50%;">
+        <h2><자신의 계정 정보 - 공연 운영자></h2>
+        <h4>아이디: 공연 장소 + 공연 요일 + 공연시간 <br>비밀번호: 1234</h4> 
+        
+            <h4>공연 장소목록</h4>
+                <li>스포츠트랙 → sport</li>
+                <li>학문관 → study</li>
+            </ul>
+        
+            <h4>공연 요일</h4>
+            수, 목, 금요일 중 공연하는 날만 입력 <br>
+            수 → wed, 목 → thu 금 → fri<br>
+        
+            <h4>공연시간</h4>
+            11:00 → 1100<br>
+            13:30 → 1330<br>
+        
+        
+            <h4>예시</h4>
+            <li>스포츠트랙에서 수요일에 12:00시 공연
+                = sportwed1200
+            </li>
+            <li>학문관 광장에서 목요일에 15:30 분 공연
+                = studythu1530
+            </li>
+
+    </div>
