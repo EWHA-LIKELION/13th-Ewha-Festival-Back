@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from booths.models import Booth, OperatingHours, Menu
@@ -10,13 +11,16 @@ def create_booth(request):
         contact = request.POST.get('contact')
         location = request.POST.get('location')
         booth_num = request.POST.get('booth_num')
+        description = request.POST.get('description')
         thumbnail = request.FILES.get('thumbnail')
+        is_show = True if request.POST.get('is_show') == 'on' else False
+
 
         try:
             booth_num = int(booth_num)
         except (TypeError, ValueError):
             messages.error(request, "부스 번호는 숫자여야 합니다.")
-            return redirect('create_booth')
+            return redirect('collects:create_booth')
 
         # 부스 객체 생성
         booth = Booth.objects.create(
@@ -24,10 +28,12 @@ def create_booth(request):
             category=category,
             contact=contact,
             location=location,
+            description=description,
             is_opened=True,  # 기본값으로 활성화
-            is_show=False,   # 기본값으로 비표시
-            booth_num=1,     # 예시로 1로 설정 (실제로는 자동 관리 필요)
-            code='부스코드123'  # 예시 코드 (고유 코드 생성 로직 추가 필요)
+            is_show=is_show,  
+            booth_num=booth_num,    
+            code = "BOOTH-" + uuid.uuid4().hex[:8], 
+            thumbnail=thumbnail if thumbnail is not None else ''
         )
 
         # 날짜별 운영 시간 데이터 받기
@@ -44,9 +50,9 @@ def create_booth(request):
         OperatingHours.objects.bulk_create(operating_hours_instances)  # 한 번에 저장
 
         messages.success(request, "부스가 성공적으로 등록되었습니다.")
-        return redirect('booth_list')  # 부스 목록 페이지로 리디렉션
+        return redirect('collects:booth_list')  
 
-    return render(request, 'booth_create.html')
+    return render(request, 'create_booth.html')
 
 
 
@@ -61,12 +67,11 @@ def create_menu(request):
         # 데이터 개수 일치 처리
         if not (len(booth_ids) == len(names) == len(prices)):
             messages.error(request, "입력한 데이터에 오류가 있습니다.")
-            return redirect('create_menu')
+            return redirect('collects:create_menu')
         
-        # 메뉴 썸네일을 메뉴보다 적게 업로드하면 None 처리
         if len(thumbnails) < len(booth_ids):
             thumbnails.extend([None] * (len(booth_ids) - len(thumbnails)))
-
+        
         # 각 항목별로 Menu 객체 생성
         for i in range(len(names)):
             try:
@@ -84,11 +89,52 @@ def create_menu(request):
                 booth=booth,
                 name=names[i],
                 price=price,
-                thumbnail=thumbnails[i]
+                thumbnail=thumbnails[i] or ''
             )
         messages.success(request, "메뉴가 성공적으로 등록되었습니다.")
-        return redirect('menu_list')
+        return redirect('collects:home')
     
     # GET 요청 시 부스 목록을 전달하여 드롭다운 옵션으로 사용
     booths = Booth.objects.all()
     return render(request, 'create_menu.html', {'booths': booths})
+
+
+def booth_list(request):
+    booths = Booth.objects.all().order_by('-created_at')
+    return render(request, 'booth_list.html', {'booths':booths})
+
+
+def edit_booth(request, booth_id):
+    booth = get_object_or_404(Booth, id=booth_id)
+
+    if request.method == "POST":
+        booth.name = request.POST.get('name')
+        booth.location = request.POST.get('location')
+        booth.booth_num = request.POST.get('booth_num')
+        booth.category = request.POST.get('category')
+        booth.contact = request.POST.get('contact')
+        booth.description = request.POST.get('description', '')
+
+        thumbnail = request.FILES.get('thumbnail')
+        if thumbnail:
+            booth.thumbnail = thumbnail
+        
+        try:
+            booth.booth_num = int(booth.booth_num)
+        except (TypeError, ValueError):
+            messages.error(request, "부스 번호는 숫자여야 합니다.")
+            return redirect('collects:edit_booth', booth_id=booth.id)
+        
+        booth.save()
+        messages.success(request, "부스가 성공적으로 수정되었습니다.")
+        return redirect('collects:booth_list')
+    
+    return render(request, 'edit_booth.html', {'booth': booth})
+
+
+def home(request):
+    return render(request, 'home.html')
+
+def detail(request, booth_id):
+    booth = get_object_or_404(Booth, id=booth_id)
+    return render(request, 'detail.html', {'booth': booth})
