@@ -35,7 +35,7 @@ class BoothListSerializer(ModelSerializer):
         menus = Menu.objects.filter(booth=obj)
         images = []
         images.append(obj.thumbnail)
-        for menu in (menus[0:3] if menus.count()>3 else menus):
+        for menu in (menus[0:4] if menus.count()>4 else menus):
             images.append(menu.thumbnail)
         return images
     
