@@ -65,6 +65,8 @@ class ShowListView(APIView, PaginationHandlerMixin):
     def get(self, request, format=None, *args, **kwargs):
         category = request.GET.getlist('category', None)
         day_of_week = request.GET.getlist('day_of_week', None)
+        if day_of_week is not None:
+            day_of_week = [day + '요일' for day in day_of_week]
         location = request.GET.getlist('location', None)
 
         q1=Q()
@@ -78,12 +80,10 @@ class ShowListView(APIView, PaginationHandlerMixin):
         booths = Booth.objects.filter(q1)
 
         if day_of_week:
-            for booth in booths:
-                q2 = Q()
-                q2 &= Q(booth = booth)
-                q2 &= Q(day_of_week__in = day_of_week)
-                if not OperatingHours.objects.filter(q2).exists():
-                    booths.exclude(id=booth.id)
+            # 요일에 따라 운영하는 부스만 선택
+            booths = booths.filter(
+                operating_hours__day_of_week__in=day_of_week
+            ).distinct()
         booths = booths.order_by('name')
         page = self.paginate_queryset(booths)
         if page is not None:
