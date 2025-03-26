@@ -64,6 +64,8 @@ class BoothCountView(APIView, PaginationHandlerMixin):
     def get(self, request, format=None, *args, **kwargs):
         category = request.GET.getlist('category', None)
         day_of_week = request.GET.getlist('day_of_week', None)
+        if day_of_week is not None:
+            day_of_week = [day + '요일' for day in day_of_week]
         location = request.GET.getlist('location', None)
 
         q1=Q()
