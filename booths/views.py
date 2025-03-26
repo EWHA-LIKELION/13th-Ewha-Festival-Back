@@ -60,7 +60,35 @@ class BoothPatchMixin:
         serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
         return serializer.data
 
+class BoothCountView(APIView, PaginationHandlerMixin):
+    def get(self, request, format=None, *args, **kwargs):
+        category = request.GET.getlist('category', None)
+        day_of_week = request.GET.getlist('day_of_week', None)
+        location = request.GET.getlist('location', None)
 
+        q1=Q()
+        q1 &= Q(is_show=False)
+        if category:
+            q1 &= Q(category__in = category)
+        
+        if location:
+            q1 &= Q(location__in = location)
+
+        booths = Booth.objects.filter(q1)
+
+        if day_of_week:
+            for booth in booths:
+                q2 = Q()
+                q2 &= Q(booth = booth)
+                q2 &= Q(day_of_week__in = day_of_week)
+                if not OperatingHours.objects.filter(q2).exists():
+                    booths.exclude(id=booth.id)  
+
+        response = {
+            "booth_count": booths.count(),
+        }
+        
+        return Response(data=response, status=HTTP_200_OK)
 
 # 부스 리스트 조회 API
 class BoothListView(APIView, PaginationHandlerMixin):
