@@ -29,7 +29,8 @@ class MyPageScrapView(APIView):
                 "name": scrap.booth.name,
                 "location": scrap.booth.location,
                 "is_show": scrap.booth.is_show,
-                "scrap_count": scrap.booth.scrap_count
+                "scrap_count": scrap.booth.scrap_count,
+                "thumbnail": scrap.booth.thumbnail
             }
 
             if scrap.booth.is_show:
@@ -37,9 +38,12 @@ class MyPageScrapView(APIView):
             else:
                 booths.append(booth_data)
 
+            total_scraps = scraps.count()
+
         return Response({
             "booths": booths,
-            "shows": shows
+            "shows": shows,
+            "total_scrap_count": total_scraps
         }, status=status.HTTP_200_OK)
 
 
