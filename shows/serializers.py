@@ -43,7 +43,7 @@ class BoothListSerializer(ModelSerializer):
         operating_hours = OperatingHours.objects.filter(booth=obj)
         day_of_week = []
         for day in operating_hours:
-            day_of_week.append(day.day_of_week)
+            day_of_week.append(day.day_of_week[0])
         return day_of_week
 
 class BoothSerializer(ModelSerializer):
