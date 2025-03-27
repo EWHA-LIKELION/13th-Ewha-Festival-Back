@@ -40,23 +40,24 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notice
-        fields = ['id', 'title', 'content', 'operating_hours', 'contact_info', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'content', 'operating_hours', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
 
     def get_operating_hours(self, obj):
         operating_hours = []
 
         # obj.show가 주어진 경우 Show에 연결된 모든 Booth들을 가져옵니다.
-        if obj.show:
-            for booth in Booth.objects.filter(show=obj.show):
+        if obj.booth and obj.booth.is_show:
+            show_booths = Booth.objects.filter(is_show=True)
                 # 해당 부스에 연결된 운영 시간 정보를 가져옵니다.
+            for booth in show_booths:
                 for operating_hour in booth.operating_hours.all():  # operating_hours가 ForeignKey 또는 ManyToMany 관계라면
                     operating_hour_data = {
                         "booth": booth.id,
                         "date": operating_hour.date,  # 운영 일자
                         "day_of_week": operating_hour.day_of_week,  # 요일
-                        "open_time": operating_hour.open_time.strftime('%H:%M'),  # 개장 시간
-                        "close_time": operating_hour.close_time.strftime('%H:%M')  # 종료 시간
+                        "open_time": operating_hour.open_time,
+                        "close_time": operating_hour.close_time  # 종료 시간
                     }
                     operating_hours.append(operating_hour_data)
 
@@ -68,8 +69,8 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
                     "booth": booth.id,
                     "date": operating_hour.date,  # 운영 일자
                     "day_of_week": operating_hour.day_of_week,  # 요일
-                    "open_time": operating_hour.open_time.strftime('%H:%M'),  # 개장 시간
-                    "close_time": operating_hour.close_time.strftime('%H:%M')  # 종료 시간
+                    "open_time": operating_hour.open_time,
+                    "close_time": operating_hour.close_time
                 }
                 operating_hours.append(operating_hour_data)
 
@@ -77,6 +78,6 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
     
     
     def create(self, validated_data):
-        validated_data['author'] = self.context['request'].user
+        validated_data['booth'] = self.context['request'].user
         return super().create(validated_data)
 

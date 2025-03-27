@@ -7,7 +7,7 @@ from rest_framework.status import *
 from .models import Notice, OperationNotice
 from .serializers import NoticeListSerializer, NoticeDetailSerializer, OperationNoticeSerializer
 from booths.models import Booth
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsManagerOrReadOnly
 from django.shortcuts import get_object_or_404
 
 
@@ -35,7 +35,7 @@ class NoticeCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class NoticeDetailView(APIView):
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsManagerOrReadOnly]
     
     def get_object(self, notice_id):
         try:
