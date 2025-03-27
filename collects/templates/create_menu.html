@@ -1,0 +1,104 @@
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 등록</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'collects:create_menu' %}" id="menu-form">
+        {% csrf_token %}
+        <div id="menu-container">
+            <!-- 첫 번째 메뉴 입력 항목 -->
+            <div class="menu-entry">
+                <fieldset style="margin-bottom: 1em; padding: 1em; border: 1px solid #ccc;">
+                    <legend>메뉴 항목 1</legend>
+                    
+                    <!-- 부스 선택: 부스의 위치와 부스 번호로 표시 -->
+                    <label for="booth_1">부스 선택:</label>
+                    <select id="booth_1" name="booth" required>
+                        {% for booth in booths %}
+                            <option value="{{ booth.id }}">{{ booth.location }} - {{ booth.booth_num }}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    
+                    <!-- 메뉴 이름 입력 -->
+                    <label for="name_1">메뉴 이름:</label>
+                    <input type="text" id="name_1" name="name" required>
+                    <br>
+                    
+                    <!-- 가격 입력 -->
+                    <label for="price_1">가격:</label>
+                    <input type="number" step="0.01" id="price_1" name="price" required>
+                    <br>
+                    
+                    <!-- 메뉴 이미지 입력 (선택적, 한 개만 업로드) -->
+                    <label for="thumbnail_1">메뉴 이미지 (선택):</label>
+                    <input type="file" id="thumbnail_1" name="thumbnail" accept="image/*">
+                    <br>
+                    
+                    <!-- 삭제 버튼 (최소 1개 남도록) -->
+                    <button type="button" class="delete-menu">삭제</button>
+                </fieldset>
+            </div>
+        </div>
+        <!-- 메뉴 추가 버튼 -->
+        <button type="button" id="add-menu">메뉴 추가</button>
+        <br><br>
+        <button type="submit">메뉴 등록</button>
+    </form>
+
+    <script>
+    // 메뉴 추가 기능
+    document.getElementById('add-menu').addEventListener('click', function(){
+        const container = document.getElementById('menu-container');
+        const entries = container.getElementsByClassName('menu-entry');
+        // 마지막 항목을 복제하여 새로운 메뉴 항목으로 사용
+        const newEntry = entries[entries.length - 1].cloneNode(true);
+        
+        // 입력값 초기화: 텍스트, 숫자 입력값은 비워줍니다.
+        newEntry.querySelectorAll('input').forEach(function(input) {
+            input.value = '';
+        });
+        
+        // 새 항목 번호 업데이트
+        let newIndex = entries.length + 1;
+        newEntry.querySelector('legend').textContent = '메뉴 항목 ' + newIndex;
+        
+        // id 속성 업데이트 (중복 제거)
+        newEntry.querySelector('select').id = 'booth_' + newIndex;
+        newEntry.querySelector('input[name="name"]').id = 'name_' + newIndex;
+        newEntry.querySelector('input[name="price"]').id = 'price_' + newIndex;
+        
+        container.appendChild(newEntry);
+    });
+
+    // 메뉴 삭제 기능: 각 메뉴 항목의 삭제 버튼에 이벤트 리스너 추가
+    // 이벤트 위임을 사용하여 동적으로 추가된 항목에도 적용
+    document.getElementById('menu-container').addEventListener('click', function(event) {
+        if (event.target && event.target.classList.contains('delete-menu')) {
+            const container = document.getElementById('menu-container');
+            const entries = container.getElementsByClassName('menu-entry');
+            // 최소 하나는 남아있도록 함
+            if (entries.length > 1) {
+                // 클릭한 삭제 버튼이 속한 메뉴 항목 제거
+                event.target.closest('.menu-entry').remove();
+                // 메뉴 항목 번호를 다시 업데이트
+                Array.from(entries).forEach((entry, index) => {
+                    entry.querySelector('legend').textContent = '메뉴 항목 ' + (index + 1);
+                    // id도 업데이트 (선택 사항)
+                    entry.querySelector('select').id = 'booth_' + (index + 1);
+                    entry.querySelector('input[name="name"]').id = 'name_' + (index + 1);
+                    entry.querySelector('input[name="price"]').id = 'price_' + (index + 1);
+                });
+            } else {
+                alert('최소 한 개의 메뉴 항목은 남아있어야 합니다.');
+            }
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>대동제 정보수합페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+        }
+        h1 {
+            margin-bottom: 40px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 25px;
+            font-size: 18px;
+            margin: 10px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007BFF;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>대동제 정보수합페이지</h1>
+    <a class="btn" href="{% url 'collects:create_booth' %}">부스등록</a>
+    <a class="btn" href="{% url 'collects:booth_list' %}">부스리스트</a>
+    <a class="btn" href="{% url 'collects:create_menu' %}">메뉴등록</a>
+</body>
+</html>

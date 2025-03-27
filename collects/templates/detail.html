@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>부스 상세 정보 - {{ booth.name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .booth-detail { margin-bottom: 30px; }
+        .booth-detail h1 { font-size: 28px; }
+        .menu-table, .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .menu-table th, .menu-table td,
+        .hours-table th, .hours-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .menu-table th, .hours-table th { background-color: #f2f2f2; }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .button-group a:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="booth-detail">
+        <h1>{{ booth.name }}</h1>
+        <p><strong>분류:</strong> {{ booth.category }}</p>
+        <p><strong>위치:</strong> {{ booth.location }}</p>
+        <p><strong>부스 번호:</strong> {{ booth.booth_num }}</p>
+        <p><strong>성격:</strong> {% if booth.is_show %} 공연 {% else %} 부스 {% endif %}</p>
+        <p><strong>연락처:</strong> {{ booth.contact }}</p>
+        <p><strong>소개:</strong> {{ booth.description }}</p>
+        <p><strong>등록일:</strong> {{ booth.created_at|date:"Y-m-d" }}</p>
+    </div>
+
+    <div class="hours-section">
+        <h2>운영 시간</h2>
+        {% if booth.operating_hours.all %}
+            <table class="hours-table">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>요일</th>
+                        <th>오픈 시간</th>
+                        <th>마감 시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hour in booth.operating_hours.all %}
+                        <tr>
+                            <td>{{ hour.date }}일</td>
+                            <td>{{ hour.day_of_week }}</td>
+                            <td>{{ hour.open_time }}</td>
+                            <td>{{ hour.close_time }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">등록된 운영 시간이 없습니다.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>등록된 운영 시간이 없습니다.</p>
+        {% endif %}
+    </div>
+
+    {% if not booth.is_show %}
+    <div class="menu-section">
+        <h2>메뉴 목록</h2>
+        {% if booth.menu.all %}
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>메뉴 이름</th>
+                        <th>가격</th>
+                        <th>썸네일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for menu in booth.menu.all %}
+                        <tr>
+                            <td>{{ menu.name }}</td>
+                            <td>{{ menu.price }}</td>
+                            <td>
+                                {% if menu.thumbnail %}
+                                    <img src="{{ menu.thumbnail }}" alt="{{ menu.name }}" style="max-width:100px;">
+                                {% else %}
+                                    없음
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">등록된 메뉴가 없습니다.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>등록된 메뉴가 없습니다.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="button-group">
+        <a href="{% url 'collects:edit_booth' booth.id %}">수정하기</a>
+        <a href="{% url 'collects:create_menu' %}">메뉴 추가하기</a>
+    </div>
+</body>
+</html>

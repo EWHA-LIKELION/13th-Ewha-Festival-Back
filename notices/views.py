@@ -7,7 +7,7 @@ from rest_framework.status import *
 from .models import Notice, OperationNotice
 from .serializers import NoticeListSerializer, NoticeDetailSerializer, OperationNoticeSerializer
 from booths.models import Booth
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsManagerOrReadOnly
 from django.shortcuts import get_object_or_404
 
 
@@ -17,12 +17,17 @@ class NoticeCreateView(APIView):
 
     def get(self, request, booth_id,*args, **kwargs):
         # 공지 목록 가져오기 (ListView)
-        notices = Notice.objects.all()
+        notices = Notice.objects.filter(booth__id=booth_id)
         serializer = NoticeListSerializer(notices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, booth_id, *args, **kwargs):
         booth = get_object_or_404(Booth, id=booth_id)
+        if booth != request.user.booth:
+            return Response(
+                {"detail": "해당 부스의 관리자만 공지를 등록할 수 있습니다."},
+                status=status.HTTP_403_FORBIDDEN
+            )
         notice = Notice.objects.create(
             title=request.data.get('title'),
             content=request.data.get('content'),
@@ -35,7 +40,7 @@ class NoticeCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class NoticeDetailView(APIView):
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsManagerOrReadOnly]
     
     def get_object(self, notice_id):
         try:
