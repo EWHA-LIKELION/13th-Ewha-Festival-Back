@@ -60,16 +60,12 @@ class BoothPatchMixin:
         serializer = OperatingHoursPatchSerializer(operating_hours, many=True)
         return serializer.data
 
-
-
-# 부스 리스트 조회 API
-class BoothListView(APIView, PaginationHandlerMixin):
-    pagination_class = BoothPagination
-    serializer_class = BoothListSerializer
-
+class BoothCountView(APIView, PaginationHandlerMixin):
     def get(self, request, format=None, *args, **kwargs):
         category = request.GET.getlist('category', None)
         day_of_week = request.GET.getlist('day_of_week', None)
+        if day_of_week is not None:
+            day_of_week = [day + '요일' for day in day_of_week]
         location = request.GET.getlist('location', None)
 
         q1=Q()
@@ -88,17 +84,52 @@ class BoothListView(APIView, PaginationHandlerMixin):
                 q2 &= Q(booth = booth)
                 q2 &= Q(day_of_week__in = day_of_week)
                 if not OperatingHours.objects.filter(q2).exists():
-                    booths.exclude(id=booth.id)
+                    booths.exclude(id=booth.id)  
+
+        response = {
+            "booth_count": booths.count(),
+        }
+        
+        return Response(data=response, status=HTTP_200_OK)
+
+# 부스 리스트 조회 API
+class BoothListView(APIView, PaginationHandlerMixin):
+    pagination_class = BoothPagination
+    serializer_class = BoothListSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
+        category = request.GET.getlist('category', None)
+        day_of_week = request.GET.getlist('day_of_week', None)
+        if day_of_week is not None:
+            day_of_week = [day + '요일' for day in day_of_week]
+        location = request.GET.getlist('location', None)
+
+        q1=Q()
+        q1 &= Q(is_show=False)
+        if category:
+            q1 &= Q(category__in = category)
+        
+        if location:
+            q1 &= Q(location__in = location)
+
+        booths = Booth.objects.filter(q1)
+
+        if day_of_week:
+            # 요일에 따라 운영하는 부스만 선택
+            booths = booths.filter(
+                operating_hours__day_of_week__in=day_of_week
+            ).distinct()
         booths = booths.order_by('name')
         page = self.paginate_queryset(booths)
         if page is not None:
             serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         else:
             serializer = self.serializer_class(booths, many=True)    
-
+        
+        page_count = booths.count()//10 if booths.count() % 10 == 0 else booths.count()//10 +1
         response = {
             "booth_count": booths.count(),
-            "page_count": booths.count()//10 +1,
+            "page_count": page_count,
             "booth": serializer.data
         }
         

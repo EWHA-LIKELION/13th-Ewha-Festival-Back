@@ -79,7 +79,7 @@ class MenuPatchView(APIView):
             return Response({"message": "메뉴 수정 완료"}, status=HTTP_200_OK)
         
         else:
-            return Response({"error": serializer.error}, status=HTTP_400_BAD_REQUEST)
+            return Response({"error": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
     def delete(self, request, booth_id, menu_id):
         booth = get_object_or_404(Booth, id=booth_id)
