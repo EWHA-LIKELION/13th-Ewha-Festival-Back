@@ -117,10 +117,11 @@ class ShowListView(APIView, PaginationHandlerMixin):
         booths = booths.order_by('name')
         page = self.paginate_queryset(booths)
         if page is not None:
-            serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+            serializer = self.serializer_class(page, many=True, context={'request': request})
+            serializer = self.get_paginated_response(serializer.data)
         else:
-            serializer = self.serializer_class(booths, context={'request': request}, many=True)
-
+            serializer = self.serializer_class(booths, context={'request': request}, many=True)    
+        
         page_count = booths.count()//10 if booths.count() % 10 == 0 else booths.count()//10 +1
         response = {
             "booth_count": booths.count(),
