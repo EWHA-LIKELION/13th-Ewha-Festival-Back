@@ -96,8 +96,15 @@ def create_menu(request):
     
     # GET 요청 시 부스 목록을 전달하여 드롭다운 옵션으로 사용
     booths = Booth.objects.all()
-    return render(request, 'create_menu.html', {'booths': booths})
+    selected_booth = None
+    booth_id = request.GET.get('booth_id')
+    if booth_id:
+        try:
+            selected_booth = Booth.objects.get(id=booth_id)
+        except Booth.DoesNotExist:
+            selected_booth = None
 
+    return render(request, 'create_menu.html', {'booths': booths, 'selected_booth': selected_booth})
 
 def booth_list(request):
     booths = Booth.objects.all().order_by('-created_at')

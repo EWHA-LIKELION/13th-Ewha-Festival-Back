@@ -118,7 +118,7 @@
 
     <div class="button-group">
         <a href="{% url 'collects:edit_booth' booth.id %}">수정하기</a>
-        <a href="{% url 'collects:create_menu' %}">메뉴 추가하기</a>
+        <a href="{% url 'collects:create_menu' %}?booth_id={{ booth.id }}">메뉴 추가하기</a>
     </div>
 </body>
 </html>
