@@ -57,7 +57,7 @@ class AdminCodeView(APIView):
         code = request.data.get("code")
 
         booth = get_object_or_404(Booth, code=code)
-        serializer = BoothListSerializer(booth)
+        serializer = BoothListSerializer(booth, context={'request': request})
         
         return Response(data=serializer.data, status=HTTP_200_OK)
 

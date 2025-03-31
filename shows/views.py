@@ -119,7 +119,7 @@ class ShowListView(APIView, PaginationHandlerMixin):
         if page is not None:
             serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         else:
-            serializer = self.serializer_class(booths, many=True)
+            serializer = self.serializer_class(booths, context={'request': request}, many=True)
 
         page_count = booths.count()//10 if booths.count() % 10 == 0 else booths.count()//10 +1
         response = {
