@@ -54,7 +54,7 @@ class AdminCodeView(APIView):
 
     def get(self, request):
         user = request.user
-        code = request.data.get("code")
+        code = request.GET.get("code")
 
         booth = get_object_or_404(Booth, code=code)
         serializer = BoothListSerializer(booth, context={'request': request})
