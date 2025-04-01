@@ -106,5 +106,7 @@ class MyBoothView(APIView):
         return Response({
             "booth_name": booth.name,
             "scrap_count": scrap_count,
-            "guestbook_count": guestbook_count
+            "guestbook_count": guestbook_count,
+            "booth_id": booth.id,
+            "is_show": booth.is_show
         })
