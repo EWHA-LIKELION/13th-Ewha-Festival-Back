@@ -50,8 +50,10 @@ class BoothListSerializer(ModelSerializer):
     
     def get_is_scrap(self, obj):
         request = self.context.get('request')
-        is_scrap = Scrap.objects.filter(booth=obj, user=request.user).exists()
-
+        if request.user.is_authenticated:
+            is_scrap = Scrap.objects.filter(booth=obj, user=request.user).exists()
+        else:
+            is_scrap = False
         return is_scrap
 
 class BoothSerializer(ModelSerializer):
