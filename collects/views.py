@@ -92,7 +92,8 @@ def create_menu(request):
                 thumbnail=thumbnails[i] or ''
             )
         messages.success(request, "메뉴가 성공적으로 등록되었습니다.")
-        return redirect('collects:home')
+        booth_id = booth_ids[0]
+        return redirect('collects:detail', booth_id=booth_id)
     
     # GET 요청 시 부스 목록을 전달하여 드롭다운 옵션으로 사용
     booths = Booth.objects.all()
