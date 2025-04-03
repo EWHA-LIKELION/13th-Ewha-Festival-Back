@@ -8,7 +8,7 @@
     <title>메뉴 등록</title>
 </head>
 <body>
-    <form method="POST" action="{% url 'collects:create_menu' %}" id="menu-form">
+    <form method="POST" action="{% url 'collects:create_menu' %}" id="menu-form" enctype="multipart/form-data">
         {% csrf_token %}
         <div id="menu-container">
             <!-- 첫 번째 메뉴 입력 항목 -->
@@ -20,9 +20,12 @@
                     <label for="booth_1">부스 선택:</label>
                     <select id="booth_1" name="booth" required>
                         {% for booth in booths %}
-                            <option value="{{ booth.id }}">{{ booth.location }} - {{ booth.booth_num }}</option>
+                            <option value="{{ booth.id }}" {% if selected_booth and booth.id == selected_booth.id %}selected{% endif %}>
+                                {{ booth.location }} - {{ booth.booth_num }}
+                            </option>
                         {% endfor %}
                     </select>
+
                     <br>
                     
                     <!-- 메뉴 이름 입력 -->
