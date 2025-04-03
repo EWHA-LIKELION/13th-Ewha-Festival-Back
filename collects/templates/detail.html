@@ -74,7 +74,6 @@
         <h1>{{ booth.name }}</h1>
         {% if booth.thumbnail %}
         <div class="booth-thumbnail">
-            <!-- 클릭 시 모달에서 확대 표시할 수 있도록 "clickable" 클래스 추가 -->
             <img class="clickable" src="{{ booth.thumbnail.url }}" alt="{{ booth.name }} 썸네일">
         </div>
         {% endif %}
@@ -86,6 +85,12 @@
         <p><strong>연락처:</strong> {{ booth.contact }}</p>
         <p><strong>소개:</strong> {{ booth.description }}</p>
         <p><strong>등록일:</strong> {{ booth.created_at|date:"Y-m-d" }}</p>
+    </div>
+
+    <!-- 모달 (확대 이미지 표시) -->
+    <div id="imgModal" class="modal">
+        <span class="close" id="modalClose">&times;</span>
+        <img class="modal-content" id="modalImg">
     </div>
 
     <div class="hours-section">
@@ -130,6 +135,7 @@
                         <th>메뉴 이름</th>
                         <th>가격</th>
                         <th>썸네일</th>
+                        <th>수정</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -139,16 +145,18 @@
                             <td>{{ menu.price }}</td>
                             <td>
                                 {% if menu.thumbnail %}
-                                    <!-- 메뉴 썸네일에도 clickable 클래스 추가 -->
                                     <img class="clickable" src="{{ menu.thumbnail.url }}" alt="{{ menu.name }}" style="max-width:100px;">
                                 {% else %}
                                     없음
                                 {% endif %}
                             </td>
+                            <td>
+                                <a href="{% url 'collects:edit_menu' menu.id %}">수정</a>
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="3">등록된 메뉴가 없습니다.</td>
+                            <td colspan="4">등록된 메뉴가 없습니다.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -164,14 +172,8 @@
         <a href="{% url 'collects:create_menu' %}?booth_id={{ booth.id }}">메뉴 추가하기</a>
     </div>
 
-    <!-- 모달 (확대 이미지 표시) -->
-    <div id="imgModal" class="modal">
-        <span class="close" id="modalClose">&times;</span>
-        <img class="modal-content" id="modalImg">
-    </div>
-
     <script>
-        // 모든 클릭 가능한 이미지를 찾아서 이벤트 리스너 등록
+        // 모든 클릭 가능한 이미지를 찾아서 이벤트 리스너 등록 (부스 썸네일, 메뉴 썸네일)
         var clickableImages = document.querySelectorAll('.clickable');
         var modal = document.getElementById("imgModal");
         var modalImg = document.getElementById("modalImg");
