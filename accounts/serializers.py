@@ -48,6 +48,7 @@ class LoginSerializer(serializers.Serializer):
             data = {
                 'id': user.id,
                 'username': user.username,
+                'is_booth': user.is_booth,
                 'access_token': access,
                 'refresh_token': refresh,
             }
@@ -77,6 +78,7 @@ class KakaoLoginSerializer(serializers.Serializer):
                     'id': user.id,
                     'username': user.username ,
                     'nickname': user.nickname,
+                    'is_booth': user.is_booth,
                     'access_token': access
                 }
                 return data
