@@ -35,6 +35,21 @@
         }
         .button-group a:hover { background-color: #0056b3; }
         
+        /* 메뉴 수정 버튼 스타일 */
+        .edit-menu-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .edit-menu-btn:hover {
+            background-color: #218838;
+        }
+        
         /* 모달 (라이트박스) 스타일 */
         .modal {
             display: none; /* 기본 숨김 */
@@ -151,7 +166,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'collects:edit_menu' menu.id %}">수정</a>
+                                <a class="edit-menu-btn" href="{% url 'collects:edit_menu' menu.id %}">수정</a>
                             </td>
                         </tr>
                     {% empty %}
