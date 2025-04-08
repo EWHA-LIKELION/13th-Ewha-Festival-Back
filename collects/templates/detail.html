@@ -89,7 +89,7 @@
         <h1>{{ booth.name }}</h1>
         {% if booth.thumbnail %}
         <div class="booth-thumbnail">
-            <img class="clickable" src="{{ booth.thumbnail.url }}" alt="{{ booth.name }} 썸네일">
+            <img class="clickable" src="{{ booth.thumbnail }}" alt="{{ booth.name }} 썸네일">
         </div>
         {% endif %}
         <p>부스 코드: {{ booth.code }}</p>
@@ -160,7 +160,7 @@
                             <td>{{ menu.price }}</td>
                             <td>
                                 {% if menu.thumbnail %}
-                                    <img class="clickable" src="{{ menu.thumbnail.url }}" alt="{{ menu.name }}" style="max-width:100px;">
+                                    <img class="clickable" src="{{ menu.thumbnail }}" alt="{{ menu.name }}" style="max-width:100px;">
                                 {% else %}
                                     없음
                                 {% endif %}

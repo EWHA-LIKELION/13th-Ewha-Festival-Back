@@ -33,7 +33,7 @@ class Booth(models.Model):
     )
 
     name = models.CharField(max_length=100)
-    thumbnail = models.ImageField(upload_to='booth_thumbnails/', blank=True, null=True)
+    thumbnail = models.TextField(blank=True)
     description = models.TextField(blank=True)
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=10)
     contact = models.CharField(blank=True, max_length=200)
@@ -115,7 +115,7 @@ class OperatingHours(models.Model):
 class Menu(models.Model):
     booth = models.ForeignKey(
         Booth, related_name='menu', on_delete=models.CASCADE)
-    thumbnail = models.ImageField(upload_to='menu_thumbnails/', blank=True, null=True)
+    thumbnail = models.TextField(blank=True)
     name = models.CharField(max_length=18, null=False)
     price = models.IntegerField()
     is_vegan = models.BooleanField(default=False)
