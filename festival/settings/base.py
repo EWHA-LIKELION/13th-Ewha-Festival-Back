@@ -118,9 +118,7 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.ewhafesta.co.kr",  # 모든 서브도메인 허용
-]
+
 ROOT_URLCONF = 'festival.urls'
 
 TEMPLATES = [
