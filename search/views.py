@@ -57,17 +57,17 @@ class BoothSearchView(APIView):
                 user=request.user, query=query
             ).first()
 
-        if existing_search:
-            existing_search.save()  # `updated_at` 자동 갱신
-        else:
-            SearchHistory.objects.create(user=request.user, query=query)
+            if existing_search:
+                existing_search.save()  # `updated_at` 자동 갱신
+            else:
+                SearchHistory.objects.create(user=request.user, query=query)
 
-        # ✅ 검색 기록을 `updated_at` 기준으로 정렬하여 5개까지만 유지
-        user_search_history = SearchHistory.objects.filter(
-            user=request.user).order_by('-updated_at')
+            # ✅ 검색 기록을 `updated_at` 기준으로 정렬하여 5개까지만 유지
+            user_search_history = SearchHistory.objects.filter(
+                user=request.user).order_by('-updated_at')
 
-        if user_search_history.count() > 5:
-            user_search_history.last().delete()
+            if user_search_history.count() > 5:
+                user_search_history.last().delete()
 
         return Response(
             {
