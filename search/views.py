@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from booths.models import Booth, OperatingHours, Menu
+from booths.serializers import BoothListSerializer
 from search.models import SearchHistory
 from rest_framework.pagination import PageNumberPagination
 
@@ -34,23 +35,7 @@ class BoothSearchView(APIView):
             return Response({"message": "검색 결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
         # ✅ 부스의 운영 요일 가져오기 (OperatingHours)
-        results = []
-        for booth in all_booths:
-            operating_hours = booth.operating_hours.values_list(
-                "day_of_week", flat=True).distinct()
-            operation_days = list(set(operating_hours))  # 중복 제거
-
-            results.append({
-                "id": booth.id,
-                "name": booth.name,
-                "is_show": booth.is_show,
-                "thumbnail": booth.thumbnail,
-                "category": booth.category,
-                "is_opened": booth.is_opened,
-                "scrap_count": booth.scrap_count,
-                "location": booth.location,
-                "operation_days": operation_days,  # ✅ 영업 요일 리스트 포함
-            })
+        serializer = BoothListSerializer(all_booths, many=True, context={'request': request})
 
         if request.user.is_authenticated:
             existing_search = SearchHistory.objects.filter(
@@ -71,8 +56,8 @@ class BoothSearchView(APIView):
 
         return Response(
             {
-                "total_results": all_booths.count(),
-                "results": results,
+                "booth_count": all_booths.count(),
+                "results": serializer.data,
             },
             status=status.HTTP_200_OK,
         )
