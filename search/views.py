@@ -3,10 +3,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.pagination import CursorPagination
 from booths.models import Booth, OperatingHours, Menu
 from booths.serializers import BoothListSerializer
 from search.models import SearchHistory
-from rest_framework.pagination import PageNumberPagination
+from booths.serializers import BoothListSerializer
+
+
+# 페이지네이션 클래스 정의 (CursorPagination)
+class BoothSearchPagination(CursorPagination):
+    page_size = 10  # 기본 페이지 크기
+    ordering = '-created_at'  # 최신 순으로 정렬
+    page_size_query_param = 'page_size'  # 요청에서 페이지 크기 조절 가능
+    max_page_size = 100  # 최대 페이지 크기
 
 
 class BoothSearchView(APIView):
@@ -34,9 +43,17 @@ class BoothSearchView(APIView):
         if not all_booths.exists():
             return Response({"message": "검색 결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
-        # ✅ 부스의 운영 요일 가져오기 (OperatingHours)
+        # 페이지네이션 처리 (CursorPagination 사용)
+        paginator = BoothSearchPagination()
+        paginated_booths = paginator.paginate_queryset(all_booths, request)
+        
+        results = BoothListSerializer(paginated_booths, many=True, context={
+                                      'request': request}).data
+
         serializer = BoothListSerializer(all_booths, many=True, context={'request': request})
 
+
+        # 검색 기록 저장
         if request.user.is_authenticated:
             existing_search = SearchHistory.objects.filter(
                 user=request.user, query=query
@@ -54,6 +71,8 @@ class BoothSearchView(APIView):
             if user_search_history.count() > 5:
                 user_search_history.last().delete()
 
+        # 페이지네이션 응답 반환
+        return paginator.get_paginated_response(results)
         return Response(
             {
                 "booth_count": all_booths.count(),
@@ -61,6 +80,7 @@ class BoothSearchView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
 
 
 class SearchHistoryView(APIView):
