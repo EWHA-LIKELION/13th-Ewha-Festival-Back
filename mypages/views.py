@@ -1,16 +1,12 @@
-from django.shortcuts import render, get_object_or_404
+# views.py
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from booths.models import Booth
 from scrap.models import Scrap
-from accounts.models import User
-from .serializers import BoothScrapSerializer, UserSerializer
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
-from guestbooks.models import GuestBook
-
-# 마이페이지 - 스크랩북 조회 API
+from booths.models import Booth
+from booths.serializers import BoothListSerializer  # BoothListSerializer 임포트
 
 
 class MyPageScrapView(APIView):
@@ -22,23 +18,18 @@ class MyPageScrapView(APIView):
 
         booths = []
         shows = []
+        total_scraps = scraps.count()
 
+        # 각 스크랩을 순회하며 부스 정보를 직렬화
         for scrap in scraps:
-            booth_data = {
-                "id": scrap.booth.id,
-                "name": scrap.booth.name,
-                "location": scrap.booth.location,
-                "is_show": scrap.booth.is_show,
-                "scrap_count": scrap.booth.scrap_count,
-                "thumbnail": scrap.booth.thumbnail
-            }
+            # BoothListSerializer를 사용하여 부스 정보를 직렬화
+            booth_data = BoothListSerializer(
+                scrap.booth, context={'request': request}).data  # 직렬화된 부스 정보
 
             if scrap.booth.is_show:
                 shows.append(booth_data)
             else:
                 booths.append(booth_data)
-
-            total_scraps = scraps.count()
 
         return Response({
             "booths": booths,
@@ -91,8 +82,12 @@ class MyBoothView(APIView):
         guestbook_count = GuestBook.objects.filter(booth=booth).count()
 
         # 결과 반환
-        return Response({
-            "booth_name": booth.name,
-            "scrap_count": scrap_count,
-            "guestbook_count": guestbook_count
-        })
+        return Response(
+            {
+                "booth_name": booth.name,
+                "scrap_count": scrap_count,
+                "guestbook_count": guestbook_count,
+                "booth_id": booth.id,
+                "is_show": booth.is_show,
+            }
+        )
