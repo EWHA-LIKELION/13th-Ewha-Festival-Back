@@ -4,6 +4,7 @@ from .models import Booth, Menu, OperatingHours
 from scrap.models import Scrap
 from notices.models import Notice
 from guestbooks.models import GuestBook
+from scrap.models import Scrap
 
 
 def format_timedelta(td):
@@ -49,8 +50,16 @@ class BoothListSerializer(ModelSerializer):
         operating_hours = OperatingHours.objects.filter(booth=obj)
         day_of_week = []
         for day in operating_hours:
-            day_of_week.append(day.day_of_week)
+            day_of_week.append(day.day_of_week[0])
         return day_of_week
+    
+    def get_is_scrap(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            is_scrap = Scrap.objects.filter(booth=obj, user=request.user).exists()
+        else:
+            is_scrap = False
+        return is_scrap
 
     def get_is_scrap(self, obj):
         user = self.context.get('request').user

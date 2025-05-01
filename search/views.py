@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.pagination import CursorPagination
 from booths.models import Booth, OperatingHours, Menu
+from booths.serializers import BoothListSerializer
 from search.models import SearchHistory
 from booths.serializers import BoothListSerializer
 
@@ -45,10 +46,12 @@ class BoothSearchView(APIView):
         # 페이지네이션 처리 (CursorPagination 사용)
         paginator = BoothSearchPagination()
         paginated_booths = paginator.paginate_queryset(all_booths, request)
-
-        # ✅ 부스의 운영 요일 가져오기 (OperatingHours)
+        
         results = BoothListSerializer(paginated_booths, many=True, context={
-                                      'request': request}).data  # 수정된 부분
+                                      'request': request}).data
+
+        serializer = BoothListSerializer(all_booths, many=True, context={'request': request})
+
 
         # 검색 기록 저장
         if request.user.is_authenticated:
@@ -70,6 +73,14 @@ class BoothSearchView(APIView):
 
         # 페이지네이션 응답 반환
         return paginator.get_paginated_response(results)
+        return Response(
+            {
+                "booth_count": all_booths.count(),
+                "results": serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
 
 
 class SearchHistoryView(APIView):

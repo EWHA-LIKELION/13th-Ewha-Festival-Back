@@ -14,7 +14,7 @@ env_file_path = r"C:\Users\박민서\Desktop\멋사\13th-Ewha-Festival-Back\.env
 
 # environ을 사용해 환경 변수 설정
 env = environ.Env(
-    DEBUG=(bool, True)
+    DEBUG=(bool, False)
 )
 
 # 절대 경로로 .env 파일 읽기
@@ -69,8 +69,8 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework_simplejwt',
     'storages',
-
-
+    'collects',
+   
 ]
 
 # jwt
@@ -127,6 +127,10 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ewhafesta.co.kr",  # 모든 서브도메인 허용
 ]
 
 ROOT_URLCONF = 'festival.urls'
@@ -211,5 +215,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'       
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
