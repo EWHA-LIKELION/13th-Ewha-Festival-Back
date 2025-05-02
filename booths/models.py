@@ -39,6 +39,7 @@ class Booth(models.Model):
     contact = models.CharField(blank=True, max_length=200)
     is_opened = models.BooleanField(default=True)
     is_show = models.BooleanField(default=False)
+    is_committee = models.BooleanField(default=False) # 축준위 부스
     scrap_count = models.IntegerField(default=0)
     menu_count = models.IntegerField(default=0)
     notice_count = models.IntegerField(default=0)
