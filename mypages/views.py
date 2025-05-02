@@ -8,7 +8,7 @@ from scrap.models import Scrap
 from booths.models import Booth
 from accounts.models import User
 from booths.serializers import BoothListSerializer
-from .serializers import BoothScrapSerializer, UserSerializer
+from .serializers import UserSerializer
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from guestbooks.models import GuestBook
 
