@@ -3,7 +3,8 @@ from rest_framework import views
 from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Booth, Scrap
-
+from rest_framework.pagination import CursorPagination
+from .serializers import BoothScrapSerializer, BoothListSerializer
 
 class BoothScrapView(views.APIView):
     def post(self, request, pk):

@@ -14,6 +14,14 @@ from guestbooks.models import GuestBook
 # 마이페이지 - 스크랩북 조회 API
 
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from scrap.models import Scrap
+from .serializers import BoothScrapSerializer
+
+
 class MyPageScrapView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -24,22 +32,18 @@ class MyPageScrapView(APIView):
         booths = []
         shows = []
 
+        # 기존에 수동으로 부스 데이터를 작성하는 부분을 시리얼라이저로 변경
         for scrap in scraps:
-            booth_data = {
-                "id": scrap.booth.id,
-                "name": scrap.booth.name,
-                "location": scrap.booth.location,
-                "is_show": scrap.booth.is_show,
-                "scrap_count": scrap.booth.scrap_count,
-                "thumbnail": scrap.booth.thumbnail
-            }
+            # 부스 데이터 직렬화
+            booth_data = BoothScrapSerializer(
+                # context에 request를 포함
+                scrap, context={'request': request}).data
 
+            # 부스가 공개된 경우 shows에 추가, 그렇지 않으면 booths에 추가
             if scrap.booth.is_show:
                 shows.append(booth_data)
             else:
                 booths.append(booth_data)
-
-            total_scraps = scraps.count()
 
         return Response({
             "booths": booths,

@@ -10,10 +10,3 @@ class BoothScrapSerializer(serializers.ModelSerializer):
         model = Scrap
         # 스크랩 ID, 부스 정보, 사용자 정보 및 생성 일시 반환
         fields = ['id', 'booth', 'user_id', 'created_at']
-
-
-class BoothScrapSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Scrap
-        # 스크랩 ID, 부스 정보, 사용자 정보 및 생성 일시 반환
-        fields = ['id', 'booth', 'user_id', 'created_at']
