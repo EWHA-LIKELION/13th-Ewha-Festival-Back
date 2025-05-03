@@ -66,7 +66,7 @@ class AdminCodeView(APIView):
             return Response({"message": "관리자 코드를 입력하세요."}, status=HTTP_400_BAD_REQUEST)
 
         booth = Booth.objects.filter(code=code)
-        serializer = BoothListSerializer(booth, many=True)
+        serializer = BoothListSerializer(booth, context={'request':request})
 
         return Response(data=serializer.data, status=HTTP_200_OK)
 
