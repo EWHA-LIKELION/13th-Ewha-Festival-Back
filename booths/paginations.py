@@ -3,6 +3,10 @@ from rest_framework.pagination import CursorPagination
 class BoothPagination(CursorPagination):
     page_size = 10
     ordering = 'name'
+    
+class BoothScrapPagination(CursorPagination):
+    page_size = 10
+    ordering = '-created_at'
 
 class PaginationHandlerMixin(object):
     @property
