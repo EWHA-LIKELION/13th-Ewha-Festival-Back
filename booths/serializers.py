@@ -1,10 +1,8 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
 from .models import Booth, Menu, OperatingHours
-from scrap.models import Scrap
 from notices.models import Notice
 from guestbooks.models import GuestBook
-
 
 def format_timedelta(td):
     if td.days >= 1:
@@ -18,50 +16,35 @@ def format_timedelta(td):
 
     else:
         return "방금 전"
-
-
+    
 class BoothListSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     images = SerializerMethodField()
     day_of_week = SerializerMethodField()
-    is_scrap = SerializerMethodField()
-    is_show = SerializerMethodField()
 
     class Meta:
         model = Booth
-        fields = ['id', 'name', 'is_opened', 'category', 'day_of_week',
-                  'formatted_location', 'scrap_count', 'description', 'images', 'is_show', 'is_scrap']
+        fields = ['id', 'name', 'is_opened', 'category', 'day_of_week', 'formatted_location', 'scrap_count', 'description', 'images']
 
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
         return f"{obj.location}{int(obj.booth_num):02}"
-
+    
     def get_images(self, obj):
         menus = Menu.objects.filter(booth=obj)
         images = []
         images.append(obj.thumbnail)
-        for menu in (menus[0:4] if menus.count() > 4 else menus):
+        for menu in (menus[0:4] if menus.count()>4 else menus):
             images.append(menu.thumbnail)
         return images
-
+    
     def get_day_of_week(self, obj):
         operating_hours = OperatingHours.objects.filter(booth=obj)
         day_of_week = []
         for day in operating_hours:
             day_of_week.append(day.day_of_week)
         return day_of_week
-
-    def get_is_scrap(self, obj):
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            # 사용자가 해당 부스를 스크랩했는지 여부
-            return Scrap.objects.filter(booth=obj, user=user).exists()
-        return False
-
-    def get_is_show(self, obj):
-        return obj.is_show
-
 
 class BoothSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
@@ -77,13 +60,12 @@ class BoothSerializer(ModelSerializer):
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
         return f"{obj.location}{int(obj.booth_num):02}"
-
+    
     def get_role(self, obj):
         request = self.context.get('request')
         if not request.user.is_authenticated:
             return "guest"
         return "admin" if obj == request.user.booth else "user"
-
 
 class BoothNoticeSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
@@ -97,39 +79,33 @@ class BoothNoticeSerializer(ModelSerializer):
     def get_formatted_created_at(self, obj):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
-
-
+    
 class BoothMenuSerializer(ModelSerializer):
     class Meta:
         model = Menu
         fields = ['thumbnail', 'name', 'price', 'is_sale']
 
-
 class BoothGuestBookSerializer(ModelSerializer):
     formatted_created_at = SerializerMethodField()
     is_author = SerializerMethodField()
-
+    
     class Meta:
         model = GuestBook
-        fields = ['id', 'username', 'content',
-                  'is_author', 'formatted_created_at']
+        fields = ['id', 'username', 'content', 'is_author', 'formatted_created_at']
 
     def get_formatted_created_at(self, obj):
         time_difference = timezone.now() - obj.created_at
         return format_timedelta(time_difference)
-
+    
     def get_is_author(self, obj):
         request = self.context.get('request')
         return obj.user == request.user if request else False
 
-
 class BoothPatchSerializer(ModelSerializer):
     class Meta:
         model = Booth
-        fields = ['id', 'thumbnail', 'name', 'description',
-                  'contact', 'is_opened', 'menu_count', 'notice_count']
+        fields = ['id', 'thumbnail', 'name', 'description', 'contact', 'is_opened', 'menu_count', 'notice_count']
         read_only_fields = ['id', 'created_at', 'updated_at']
-
 
 class OperatingHoursPatchSerializer(ModelSerializer):
     class Meta:

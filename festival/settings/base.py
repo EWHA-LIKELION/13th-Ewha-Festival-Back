@@ -9,21 +9,10 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# 절대 경로로 .env 파일 경로 설정
-env_file_path = r"C:\Users\박민서\Desktop\멋사\13th-Ewha-Festival-Back\.env"  # 절대 경로로 설정
-
-# environ을 사용해 환경 변수 설정
 env = environ.Env(
     DEBUG=(bool, True)
 )
-
-# 절대 경로로 .env 파일 읽기
-environ.Env.read_env(env_file_path)  # .env 파일 경로 읽기
-
-# 환경 변수 로드
-SECRET_KEY = env('DJANGO_SECRET_KEY')
-DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DEBUG')
@@ -56,7 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
 
-    # 추가한 앱 이름
+     # 추가한 앱 이름
     'accounts',
     'booths',
     'shows',
@@ -69,8 +58,8 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework_simplejwt',
     'storages',
-
-
+    
+   
 ]
 
 # jwt
@@ -83,8 +72,8 @@ REST_FRAMEWORK = {
 }
 REST_USE_JWT = True
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=3),  # 유효기간 3일
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # 유효기간 7일
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3), #유효기간 3일 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7), #유효기간 7일
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'TOKEN_USER_CLASS': 'accounts.User',
