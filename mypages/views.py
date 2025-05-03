@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
+from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -13,42 +14,45 @@ from guestbooks.models import GuestBook
 
 # 마이페이지 - 스크랩북 조회 API
 
+# 커서 페이지네이션 클래스 정의
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from scrap.models import Scrap
-from .serializers import BoothScrapSerializer
+
+class BoothScrapPagination(CursorPagination):
+    page_size = 10  # 페이지당 항목 수
+    ordering = '-created_at'  # 스크랩의 생성시간 기준으로 정렬
 
 
 class MyPageScrapView(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = BoothScrapPagination  # 페이지네이션 클래스 적용
 
     def get(self, request):
         # 현재 로그인한 유저가 스크랩한 데이터 가져오기
         scraps = Scrap.objects.filter(user=request.user)
 
+        # 커서 페이지네이션을 이용한 데이터 분리
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(scraps, request)
+
         booths = []
         shows = []
 
-        # 기존에 수동으로 부스 데이터를 작성하는 부분을 시리얼라이저로 변경
-        for scrap in scraps:
-            # 부스 데이터 직렬화
+        # 시리얼라이저로 부스 데이터를 변환
+        for scrap in result_page:
             booth_data = BoothScrapSerializer(
-                # context에 request를 포함
                 scrap, context={'request': request}).data
 
-            # 부스가 공개된 경우 shows에 추가, 그렇지 않으면 booths에 추가
+            # 공개된 부스인지 여부에 따른 분류
             if scrap.booth.is_show:
                 shows.append(booth_data)
             else:
                 booths.append(booth_data)
 
-        return Response({
+        # 페이지네이션된 결과 반환
+        return paginator.get_paginated_response({
             "booths": booths,
             "shows": shows
-        }, status=status.HTTP_200_OK)
+        })
 
 
 # 마이페이지 - 관리자 코드 입력 API
