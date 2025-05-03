@@ -1,18 +1,25 @@
-# views.py
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from booths.models import Booth
+from scrap.models import Scrap
+from accounts.models import User
+from .serializers import BoothScrapSerializer, UserSerializer
+from booths.serializers import BoothListSerializer
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
+from guestbooks.models import GuestBook
+
+# 마이페이지 - 스크랩북 조회 API
+
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from scrap.models import Scrap
-from booths.models import Booth
-from accounts.models import User
-from booths.serializers import BoothListSerializer
-from .serializers import UserSerializer
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
-from guestbooks.models import GuestBook
-
-# 마이페이지 - 스크랩북 조회 API
+from .serializers import BoothScrapSerializer
 
 
 class MyPageScrapView(APIView):
@@ -24,14 +31,15 @@ class MyPageScrapView(APIView):
 
         booths = []
         shows = []
-        total_scraps = scraps.count()
 
-        # 각 스크랩을 순회하며 부스 정보를 직렬화
+        # 기존에 수동으로 부스 데이터를 작성하는 부분을 시리얼라이저로 변경
         for scrap in scraps:
-            # BoothListSerializer를 사용하여 부스 정보를 직렬화
-            booth_data = BoothListSerializer(
-                scrap.booth, context={'request': request}).data  # 직렬화된 부스 정보
+            # 부스 데이터 직렬화
+            booth_data = BoothScrapSerializer(
+                # context에 request를 포함
+                scrap, context={'request': request}).data
 
+            # 부스가 공개된 경우 shows에 추가, 그렇지 않으면 booths에 추가
             if scrap.booth.is_show:
                 shows.append(booth_data)
             else:
@@ -39,8 +47,7 @@ class MyPageScrapView(APIView):
 
         return Response({
             "booths": booths,
-            "shows": shows,
-            "total_scrap_count": total_scraps
+            "shows": shows
         }, status=status.HTTP_200_OK)
 
 
@@ -49,15 +56,15 @@ class AdminCodeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        code = request.GET.get("code")
+        code = request.data.get("code")
 
-        booth = get_object_or_404(Booth, code=code)
-        serializer = BoothListSerializer(booth, context={'request': request})
-        
+        if not code:
+            return Response({"message": "관리자 코드를 입력하세요."}, status=HTTP_400_BAD_REQUEST)
+
+        booth = Booth.objects.filter(code=code)
+        serializer = BoothListSerializer(booth, many=True)
+
         return Response(data=serializer.data, status=HTTP_200_OK)
-
-        
 
     def patch(self, request):
         """마이페이지 - 관리자 코드 입력"""
@@ -98,13 +105,9 @@ class MyBoothView(APIView):
         scrap_count = Scrap.objects.filter(booth=booth).count()
         guestbook_count = GuestBook.objects.filter(booth=booth).count()
 
-        return Response(
-            {
-                "booth_name": booth.name,
-                "scrap_count": scrap_count,
-                "guestbook_count": guestbook_count,
-                "booth_id": booth.id,
-                "is_show": booth.is_show,
-            }
-        )
-
+        # 결과 반환
+        return Response({
+            "booth_name": booth.name,
+            "scrap_count": scrap_count,
+            "guestbook_count": guestbook_count
+        })
