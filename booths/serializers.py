@@ -25,13 +25,13 @@ class BoothListSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     images = SerializerMethodField()
     day_of_week = SerializerMethodField()
-    is_scrap = SerializerMethodField()
     is_show = SerializerMethodField()
+    is_scrap = SerializerMethodField()
 
     class Meta:
         model = Booth
         fields = ['id', 'name', 'is_opened', 'category', 'day_of_week',
-                  'formatted_location', 'scrap_count', 'description', 'images', 'is_show', 'is_scrap']
+                  'formatted_location', 'scrap_count', 'description', 'images', "is_show", "is_scrap"]
 
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
@@ -50,16 +50,8 @@ class BoothListSerializer(ModelSerializer):
         operating_hours = OperatingHours.objects.filter(booth=obj)
         day_of_week = []
         for day in operating_hours:
-            day_of_week.append(day.day_of_week[0])
+            day_of_week.append(day.day_of_week)
         return day_of_week
-    
-    def get_is_scrap(self, obj):
-        request = self.context.get('request')
-        if request.user.is_authenticated:
-            is_scrap = Scrap.objects.filter(booth=obj, user=request.user).exists()
-        else:
-            is_scrap = False
-        return is_scrap
 
     def get_is_scrap(self, obj):
         user = self.context.get('request').user
