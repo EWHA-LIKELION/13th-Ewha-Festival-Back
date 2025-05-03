@@ -30,13 +30,16 @@ class MyPageScrapView(APIView):
                 "name": scrap.booth.name,
                 "location": scrap.booth.location,
                 "is_show": scrap.booth.is_show,
-                "scrap_count": scrap.booth.scrap_count
+                "scrap_count": scrap.booth.scrap_count,
+                "thumbnail": scrap.booth.thumbnail
             }
 
             if scrap.booth.is_show:
                 shows.append(booth_data)
             else:
                 booths.append(booth_data)
+
+            total_scraps = scraps.count()
 
         return Response({
             "booths": booths,
@@ -56,9 +59,8 @@ class AdminCodeView(APIView):
 
         booth = Booth.objects.filter(code=code)
         serializer = BoothListSerializer(booth, many=True)
-        
+
         return Response(data=serializer.data, status=HTTP_200_OK)
-        
 
     def patch(self, request):
         """마이페이지 - 관리자 코드 입력"""
