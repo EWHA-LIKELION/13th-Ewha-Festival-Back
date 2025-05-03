@@ -60,7 +60,7 @@ class AdminCodeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        code = request.data.get("code")
+        code = request.GET.get("code")
 
         if not code:
             return Response({"message": "관리자 코드를 입력하세요."}, status=HTTP_400_BAD_REQUEST)
