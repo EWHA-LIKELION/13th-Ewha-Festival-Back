@@ -25,7 +25,7 @@ class CommitteeBoothListView(APIView):
         response = {
             "기획": booth1_serializer.data,
             "대회협력": booth2_serializer.data,
-            "홍보디자인인": booth3_serializer.data
+            "홍보디자인": booth3_serializer.data
         }
         
         return Response(data=response, status=HTTP_200_OK)
