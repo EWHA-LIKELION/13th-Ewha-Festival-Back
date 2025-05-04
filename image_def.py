@@ -12,6 +12,7 @@ class ImageProcessing:
     def s3_file_upload_by_file_data(upload_file, bucket_path, file_name, content_type=None, extension=None):
         region_name = settings.AWS_S3_REGION_NAME
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        file_name = file_name.replace(" ", "")
         
         content_type = content_type or upload_file.content_type
         extension = extension or upload_file.name.split('.')[-1]
