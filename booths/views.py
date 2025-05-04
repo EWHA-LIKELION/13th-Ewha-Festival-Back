@@ -107,6 +107,7 @@ class BoothListView(APIView, PaginationHandlerMixin):
 
         q1=Q()
         q1 &= Q(is_show=False)
+        q1 &= Q(is_committee=False)
         if category:
             q1 &= Q(category__in = category)
         
