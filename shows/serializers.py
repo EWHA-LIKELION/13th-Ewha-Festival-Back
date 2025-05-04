@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from django.utils import timezone
 from booths.models import Booth, Menu, OperatingHours
+from scrap.models import Scrap
 from notices.models import Notice
 from guestbooks.models import GuestBook
 
@@ -21,10 +22,11 @@ class BoothListSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()
     images = SerializerMethodField()
     day_of_week = SerializerMethodField()
+    is_scrap = SerializerMethodField()
 
     class Meta:
         model = Booth
-        fields = ['id', 'name', 'is_opened', 'category', 'day_of_week', 'formatted_location', 'scrap_count', 'description', 'images']
+        fields = ['id', 'name', 'is_opened', 'category', 'day_of_week', 'formatted_location', 'scrap_count', 'description', 'images', 'is_scrap']
 
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
@@ -43,8 +45,16 @@ class BoothListSerializer(ModelSerializer):
         operating_hours = OperatingHours.objects.filter(booth=obj)
         day_of_week = []
         for day in operating_hours:
-            day_of_week.append(day.day_of_week)
+            day_of_week.append(day.day_of_week[0])
         return day_of_week
+    
+    def get_is_scrap(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            is_scrap = Scrap.objects.filter(booth=obj, user=request.user).exists()
+        else:
+            is_scrap = False
+        return is_scrap
 
 class BoothSerializer(ModelSerializer):
     formatted_location = SerializerMethodField()

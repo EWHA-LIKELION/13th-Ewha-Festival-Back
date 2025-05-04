@@ -90,7 +90,7 @@ class MenuPatchView(APIView):
         ImageProcessing.s3_file_delete('menu_thumbnail', filename)
 
         menu.delete()
-        booth.decrease_menu_count
+        booth.decrease_menu_count()
         return Response({"message": "메뉴 삭제 완료"}, status=HTTP_200_OK)
     
     

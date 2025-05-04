@@ -69,14 +69,17 @@ class BoothSerializer(ModelSerializer):
 
     class Meta:
         model = Booth
-        fields = ['id', 'is_show', 'role', 'name', 'thumbnail', 'description', 'category',
+        fields = ['id', 'is_show', 'is_committee', 'role', 'name', 'thumbnail', 'description', 'category',
                   'contact', 'is_opened', 'scrap_count', 'formatted_location']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
-        return f"{obj.location}{int(obj.booth_num):02}"
+
+        if obj.booth_num is not None:
+            return f"{obj.location}{int(obj.booth_num):02}"
+        return f"{obj.location}"
 
     def get_role(self, obj):
         request = self.context.get('request')

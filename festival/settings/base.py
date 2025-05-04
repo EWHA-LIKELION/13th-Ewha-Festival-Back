@@ -69,6 +69,8 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework_simplejwt',
     'storages',
+    'collects',
+    'committeeBooth',
 
 ]
 

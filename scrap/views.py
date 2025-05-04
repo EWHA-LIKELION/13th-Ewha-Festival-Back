@@ -6,7 +6,6 @@ from .models import Booth, Scrap
 from rest_framework.pagination import CursorPagination
 from .serializers import BoothScrapSerializer, BoothListSerializer
 
-
 class BoothScrapView(views.APIView):
     def post(self, request, pk):
         if not request.user.is_authenticated:

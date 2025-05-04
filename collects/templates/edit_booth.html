@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>부스 수정 - {{ booth.name }}</title>
+</head>
+<body>
+    <h1>부스 수정</h1>
+    <form method="POST" action="{% url 'collects:edit_booth' booth.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <h3>부스 이름</h3>
+        <input type="text" id="name" name="name" value="{{ booth.name }}" required><br>
+        
+        <h3>장소</h3>
+        <label for="location">위치:</label>
+        <select id="location" name="location" required>
+            <option value="교육관" {% if booth.location == "교육관" %}selected{% endif %}>교육관</option>
+            <option value="대강당" {% if booth.location == "대강당" %}selected{% endif %}>대강당</option>
+            <option value="신세계관" {% if booth.location == "신세계관" %}selected{% endif %}>신세계관</option>
+            <option value="생활관" {% if booth.location == "생활관" %}selected{% endif %}>생활관</option>
+            <option value="정문" {% if booth.location == "정문" %}selected{% endif %}>정문</option>
+            <option value="포스코관" {% if booth.location == "포스코관" %}selected{% endif %}>포스코관</option>
+            <option value="학문관" {% if booth.location == "학문관" %}selected{% endif %}>학문관</option>
+            <option value="휴웃길" {% if booth.location == "휴웃길" %}selected{% endif %}>휴웃길</option>
+            <option value="학관" {% if booth.location == "학관" %}selected{% endif %}>학관</option>
+            <option value="학문관무대" {% if booth.location == "학문관무대" %}selected{% endif %}>학문관무대</option>
+            <option value="스포츠트랙" {% if booth.location == "스포츠트랙" %}selected{% endif %}>스포츠트랙</option>
+        </select><br>
+        
+        <h3>부스 번호</h3>
+        <label for="booth_num">부스 번호:</label>
+        <input type="number" id="booth_num" name="booth_num" value="{{ booth.booth_num }}" required><br>
+        
+        <h3>부스 분류</h3>
+        <label for="category">분류:</label>
+        <select id="category" name="category" required>
+            <option value="음식" {% if booth.category == "음식" %}selected{% endif %}>음식</option>
+            <option value="굿즈" {% if booth.category == "굿즈" %}selected{% endif %}>굿즈</option>
+            <option value="댄스" {% if booth.category == "댄스" %}selected{% endif %}>댄스</option>
+            <option value="밴드" {% if booth.category == "밴드" %}selected{% endif %}>밴드</option>
+        </select><br>
+        
+        <h3>운영진 연락처</h3>
+        <input type="text" id="contact" name="contact" value="{{ booth.contact }}" required><br>
+        
+        <h3>부스 소개글</h3>
+        <textarea id="description" name="description" rows="4" cols="50" placeholder="부스에 대한 설명을 입력하세요.">{{ booth.description }}</textarea><br>
+        
+        <h3>썸네일 이미지</h3>
+        {% if booth.thumbnail %}
+            <p>현재 썸네일: <img src="{{ booth.thumbnail }}" alt="{{ booth.name }}" style="max-width:150px;"></p>
+        {% endif %}
+        <label for="thumbnail">새 썸네일 이미지 (변경 시):</label>
+        <input type="file" id="thumbnail" name="thumbnail" accept="image/*"><br>
+        
+        <button type="submit">부스 수정</button>
+    </form>
+    <br>
+    <a href="{% url 'collects:booth_list' %}">부스 목록으로 돌아가기</a>
+</body>
+</html>

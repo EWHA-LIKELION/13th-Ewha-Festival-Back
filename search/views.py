@@ -3,9 +3,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.pagination import CursorPagination
 from booths.models import Booth, OperatingHours, Menu
+from booths.serializers import BoothListSerializer
 from search.models import SearchHistory
-from rest_framework.pagination import PageNumberPagination
+from booths.serializers import BoothListSerializer
+
+
+# 페이지네이션 클래스 정의 (CursorPagination)
+class BoothSearchPagination(CursorPagination):
+    page_size = 10  # 기본 페이지 크기
+    ordering = '-created_at'  # 최신 순으로 정렬
+    page_size_query_param = 'page_size'  # 요청에서 페이지 크기 조절 가능
+    max_page_size = 100  # 최대 페이지 크기
 
 
 class BoothSearchView(APIView):
@@ -33,46 +43,40 @@ class BoothSearchView(APIView):
         if not all_booths.exists():
             return Response({"message": "검색 결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
-        # ✅ 부스의 운영 요일 가져오기 (OperatingHours)
-        results = []
-        for booth in all_booths:
-            operating_hours = booth.operating_hours.values_list(
-                "day_of_week", flat=True).distinct()
-            operation_days = list(set(operating_hours))  # 중복 제거
+        # 페이지네이션 처리 (CursorPagination 사용)
+        paginator = BoothSearchPagination()
+        paginated_booths = paginator.paginate_queryset(all_booths, request)
 
-            results.append({
-                "id": booth.id,
-                "name": booth.name,
-                "is_show": booth.is_show,
-                "thumbnail": booth.thumbnail,
-                "category": booth.category,
-                "is_opened": booth.is_opened,
-                "scrap_count": booth.scrap_count,
-                "location": booth.location,
-                "operation_days": operation_days,  # ✅ 영업 요일 리스트 포함
-            })
+        results = BoothListSerializer(paginated_booths, many=True, context={
+                                      'request': request}).data
 
+        serializer = BoothListSerializer(
+            all_booths, many=True, context={'request': request})
+
+        # 검색 기록 저장
         if request.user.is_authenticated:
             existing_search = SearchHistory.objects.filter(
                 user=request.user, query=query
             ).first()
 
-        if existing_search:
-            existing_search.save()  # `updated_at` 자동 갱신
-        else:
-            SearchHistory.objects.create(user=request.user, query=query)
+            if existing_search:
+                existing_search.save()  # `updated_at` 자동 갱신
+            else:
+                SearchHistory.objects.create(user=request.user, query=query)
 
-        # ✅ 검색 기록을 `updated_at` 기준으로 정렬하여 5개까지만 유지
-        user_search_history = SearchHistory.objects.filter(
-            user=request.user).order_by('-updated_at')
+            # ✅ 검색 기록을 `updated_at` 기준으로 정렬하여 5개까지만 유지
+            user_search_history = SearchHistory.objects.filter(
+                user=request.user).order_by('-updated_at')
 
-        if user_search_history.count() > 5:
-            user_search_history.last().delete()
+            if user_search_history.count() > 5:
+                user_search_history.last().delete()
 
+        # 페이지네이션 응답 반환
+        return paginator.get_paginated_response(results)
         return Response(
             {
-                "total_results": all_booths.count(),
-                "results": results,
+                "booth_count": all_booths.count(),
+                "results": serializer.data,
             },
             status=status.HTTP_200_OK,
         )

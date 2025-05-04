@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>부스 상세 정보 - {{ booth.name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .booth-detail { margin-bottom: 30px; }
+        .booth-detail h1 { font-size: 28px; }
+        .booth-thumbnail { margin: 20px 0; }
+        .booth-thumbnail img { max-width: 300px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; }
+        .menu-table, .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .menu-table th, .menu-table td,
+        .hours-table th, .hours-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .menu-table th, .hours-table th { background-color: #f2f2f2; }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .button-group a:hover { background-color: #0056b3; }
+        
+        /* 메뉴 수정 버튼 스타일 */
+        .edit-menu-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .edit-menu-btn:hover {
+            background-color: #218838;
+        }
+        
+        /* 모달 (라이트박스) 스타일 */
+        .modal {
+            display: none; /* 기본 숨김 */
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9); /* 어두운 배경 */
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+            animation: zoom 0.6s;
+        }
+        .close {
+            position: absolute;
+            top: 50px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        @keyframes zoom {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="booth-detail">
+        <h1>{{ booth.name }}</h1>
+        {% if booth.thumbnail %}
+        <div class="booth-thumbnail">
+            <img class="clickable" src="{{ booth.thumbnail }}" alt="{{ booth.name }} 썸네일">
+        </div>
+        {% endif %}
+        <p>부스 코드: {{ booth.code }}</p>
+        <p><strong>분류:</strong> {{ booth.category }}</p>
+        <p><strong>위치:</strong> {{ booth.location }}</p>
+        <p><strong>부스 번호:</strong> {{ booth.booth_num }}</p>
+        <p><strong>성격:</strong> {% if booth.is_show %} 공연 {% else %} 부스 {% endif %}</p>
+        <p><strong>연락처:</strong> {{ booth.contact }}</p>
+        <p><strong>소개:</strong> {{ booth.description }}</p>
+        <p><strong>등록일:</strong> {{ booth.created_at|date:"Y-m-d" }}</p>
+    </div>
+
+    <!-- 모달 (확대 이미지 표시) -->
+    <div id="imgModal" class="modal">
+        <span class="close" id="modalClose">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <div class="hours-section">
+        <h2>운영 시간</h2>
+        {% if booth.operating_hours.all %}
+            <table class="hours-table">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>요일</th>
+                        <th>오픈 시간</th>
+                        <th>마감 시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hour in booth.operating_hours.all %}
+                        <tr>
+                            <td>{{ hour.date }}일</td>
+                            <td>{{ hour.day_of_week }}</td>
+                            <td>{{ hour.open_time }}</td>
+                            <td>{{ hour.close_time }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">등록된 운영 시간이 없습니다.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>등록된 운영 시간이 없습니다.</p>
+        {% endif %}
+    </div>
+
+    {% if not booth.is_show %}
+    <div class="menu-section">
+        <h2>메뉴 목록</h2>
+        {% if booth.menu.all %}
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>메뉴 이름</th>
+                        <th>가격</th>
+                        <th>썸네일</th>
+                        <th>수정</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for menu in booth.menu.all %}
+                        <tr>
+                            <td>{{ menu.name }}</td>
+                            <td>{{ menu.price }}</td>
+                            <td>
+                                {% if menu.thumbnail %}
+                                    <img class="clickable" src="{{ menu.thumbnail }}" alt="{{ menu.name }}" style="max-width:100px;">
+                                {% else %}
+                                    없음
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="edit-menu-btn" href="{% url 'collects:edit_menu' menu.id %}">수정</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">등록된 메뉴가 없습니다.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>등록된 메뉴가 없습니다.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="button-group">
+        <a href="{% url 'collects:edit_booth' booth.id %}">수정하기</a>
+        <a href="{% url 'collects:create_menu' %}?booth_id={{ booth.id }}">메뉴 추가하기</a>
+    </div>
+
+    <script>
+        // 모든 클릭 가능한 이미지를 찾아서 이벤트 리스너 등록 (부스 썸네일, 메뉴 썸네일)
+        var clickableImages = document.querySelectorAll('.clickable');
+        var modal = document.getElementById("imgModal");
+        var modalImg = document.getElementById("modalImg");
+        var closeBtn = document.getElementById("modalClose");
+
+        clickableImages.forEach(function(img) {
+            img.addEventListener('click', function() {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            });
+        });
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // 모달 배경 클릭 시 닫힘 처리
+        modal.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
+</body>
+</html>
