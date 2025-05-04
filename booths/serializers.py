@@ -85,7 +85,10 @@ class BoothSerializer(ModelSerializer):
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
-        return f"{obj.location}{int(obj.booth_num):02}"
+
+        if obj.booth_num is not None:
+            return f"{obj.location}{int(obj.booth_num):02}"
+        return f"{obj.location}"
 
     def get_role(self, obj):
         request = self.context.get('request')
