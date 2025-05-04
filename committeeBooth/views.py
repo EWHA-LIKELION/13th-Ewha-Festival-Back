@@ -6,7 +6,7 @@ from booths.models import Booth, OperatingHours
 from booths.serializers import OperatingHoursPatchSerializer
 from booths.views import BoothDataMixin, BoothPatchMixin
 from .models import CommitteeBooth
-from .serializers import CommitteeBoothListSerializer, CommitteeBoothPatchSerializer
+from .serializers import CommitteeBoothListSerializer, CommitteeBoothPatchSerializer, CommitteeBoothSerializer
 from image_def import ImageProcessing
 import json
 
@@ -33,12 +33,13 @@ class CommitteeBoothListView(APIView):
 
 class CommitteeBoothView(BoothDataMixin, APIView):
     def get(self, request, booth_id):
-        booth_data = self.get_booth_data(booth_id, request)
+        booth = get_object_or_404(CommitteeBooth, id=booth_id)
+        serializer = CommitteeBoothSerializer(booth, context={'request': request})
         operating_hours = self.get_operating_hours(booth_id)
         is_scrap = self.get_is_scrap(request.user, booth_id)
 
         data = {
-            'booth': booth_data,
+            'booth': serializer.data,
             'operating_hours': operating_hours,
             'is_scrap': is_scrap
         }

@@ -108,7 +108,7 @@ def create_menu(request):
     return render(request, 'create_menu.html', {'booths': booths, 'selected_booth': selected_booth})
 
 def booth_list(request):
-    booths = Booth.objects.all().order_by('-created_at')
+    booths = Booth.objects.filter(is_committee=False).order_by('-created_at')
     return render(request, 'booth_list.html', {'booths': booths})
 
 def edit_booth(request, booth_id):

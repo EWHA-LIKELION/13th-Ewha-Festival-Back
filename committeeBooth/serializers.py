@@ -26,12 +26,12 @@ class CommitteeBoothListSerializer(ModelSerializer):
     class Meta:
         model = CommitteeBooth
         fields = ['id', 'name', 'is_opened', 'category', 'day_of_week',
-                  'formatted_location', 'scrap_count', 'description', 'images', 'is_show', 'is_scrap']
+                  'formatted_location', 'scrap_count', 'description', 'images', 'is_show', 'is_scrap', 'is_committee']
 
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
-        return f"{obj.location}{int(obj.booth_num):02}"
+        return f"{obj.location}"
 
     def get_images(self, obj):
         images = []
@@ -52,6 +52,27 @@ class CommitteeBoothListSerializer(ModelSerializer):
         else:
             is_scrap = False
         return is_scrap
+    
+class CommitteeBoothSerializer(ModelSerializer):
+    formatted_location = SerializerMethodField()
+    role = SerializerMethodField()
+
+    class Meta:
+        model = CommitteeBooth
+        fields = ['id', 'is_show', 'role', 'name', 'thumbnail', 'description', 'is_committee',
+                  'contact', 'is_opened', 'scrap_count', 'formatted_location']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_formatted_location(self, obj):
+        if obj.location.endswith('관'):
+            obj.location = obj.location[:-1]
+        return f"{obj.location}"
+
+    def get_role(self, obj):
+        request = self.context.get('request')
+        if not request.user.is_authenticated:
+            return "guest"
+        return "admin" if obj == request.user.booth else "user"
 
 class CommitteeBoothPatchSerializer(ModelSerializer):
     class Meta:
