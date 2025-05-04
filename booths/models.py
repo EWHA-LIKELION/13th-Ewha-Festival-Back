@@ -20,6 +20,14 @@ class Booth(models.Model):
         # 공연
         ('학문관무대', '학문관무대'),
         ('스포츠트랙', '스포츠트랙'),
+
+        ('잔디광장', '잔디광장'),
+        ('아산공학관관', '아산공학관관'),
+        ('학문관 4층 전시실', '학문관 4층 전시실'),
+        ('정문 돌담 앞', '정문 돌담 앞'),
+        ('학교 전체', '학교 전체'),
+        ('ECC B4 삼성홀 앞', 'ECC B4 삼성홀 앞'),
+
     )
 
     CATEGORY_CHOICES = (
@@ -44,7 +52,7 @@ class Booth(models.Model):
     menu_count = models.IntegerField(default=0)
     notice_count = models.IntegerField(default=0)
     location = models.CharField(choices=LOCATION_CHOICES, max_length=10)
-    booth_num = models.IntegerField()
+    booth_num = models.IntegerField(null=True, blank=True)
     code = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
