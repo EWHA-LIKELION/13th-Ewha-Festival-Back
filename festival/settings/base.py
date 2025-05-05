@@ -6,7 +6,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'accounts.User'
-
+  
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 절대 경로로 .env 파일 경로 설정
