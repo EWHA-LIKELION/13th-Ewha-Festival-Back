@@ -23,10 +23,13 @@ class BoothScrapPagination(CursorPagination):
 
 
 class MyPageScrapView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     pagination_class = BoothScrapPagination  # 페이지네이션 클래스 적용
 
     def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"message": "로그인이 필요합니다."}, status=HTTP_400_BAD_REQUEST)
+
         # 현재 로그인한 유저가 스크랩한 데이터 가져오기
         scraps = Scrap.objects.filter(user=request.user)
 

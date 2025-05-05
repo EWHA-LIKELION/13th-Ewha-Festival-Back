@@ -4,6 +4,7 @@ from django.contrib import messages
 from booths.models import Booth, OperatingHours, Menu
 from image_def import ImageProcessing  # S3 업로드를 위한 유틸
 
+
 def create_booth(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -24,8 +25,10 @@ def create_booth(request):
         thumbnail_file = request.FILES.get('thumbnail')
         thumbnail_url = ''
         if thumbnail_file:
-            filename = f'{location[:-1]}{int(booth_num):02}' if location.endswith('관') else f'{location}{int(booth_num):02}'
-            thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "booth_thumbnail", f"{filename}.jpg")
+            filename = f'{location[:-1]}{int(booth_num):02}' if location.endswith(
+                '관') else f'{location}{int(booth_num):02}'
+            thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(
+                thumbnail_file, "booth_thumbnail", f"{filename}.jpg")
 
         booth = Booth.objects.create(
             name=name,
@@ -40,18 +43,40 @@ def create_booth(request):
             thumbnail=thumbnail_url
         )
 
-        operating_hours_data = [
-            {"date": 14, "day_of_week": "수요일", "open_time": request.POST.get("open_time_14"), "close_time": request.POST.get("close_time_14")},
-            {"date": 15, "day_of_week": "목요일", "open_time": request.POST.get("open_time_15"), "close_time": request.POST.get("close_time_15")},
-            {"date": 16, "day_of_week": "금요일", "open_time": request.POST.get("open_time_16"), "close_time": request.POST.get("close_time_16")},
-        ]
-        operating_hours_instances = [OperatingHours(booth=booth, **data) for data in operating_hours_data]
-        OperatingHours.objects.bulk_create(operating_hours_instances)
+        operating_hours_data = []
+
+        # 각 요일에 대해 사용자가 입력한 시간만 처리
+        days_of_week = ["14", "15", "16"]  # 예시로 14, 15, 16이 수요일, 목요일, 금요일에 대응
+        day_names = ["수요일", "목요일", "금요일"]
+
+        for i in range(3):
+            date_key = days_of_week[i]
+            day_key = day_names[i]
+
+            # 각 요일별로 open_time과 close_time 값이 존재하는 경우만 처리
+            open_time = request.POST.get(f"open_time_{date_key}")
+            close_time = request.POST.get(f"close_time_{date_key}")
+
+            # 사용자가 입력한 시간만 처리
+            if open_time and close_time:  # open_time과 close_time이 모두 입력된 경우만 처리
+                operating_hours_data.append({
+                    "date": date_key,
+                    "day_of_week": day_key,
+                    "open_time": open_time,
+                    "close_time": close_time,
+                })
+
+        # 입력된 데이터가 있을 때만 저장
+        if operating_hours_data:
+            operating_hours_instances = [OperatingHours(
+                booth=booth, **data) for data in operating_hours_data]
+            OperatingHours.objects.bulk_create(operating_hours_instances)
 
         messages.success(request, "부스가 성공적으로 등록되었습니다.")
         return redirect('collects:booth_list')
 
     return render(request, 'create_booth.html')
+
 
 def create_menu(request):
     if request.method == "POST":
@@ -83,7 +108,8 @@ def create_menu(request):
             thumbnail_url = ''
             if thumbnail_file:
                 filename = f'{booth.location}_{booth.booth_num}_{names[i]}'
-                thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "menu_thumbnail", f"{filename}.jpg")
+                thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(
+                    thumbnail_file, "menu_thumbnail", f"{filename}.jpg")
 
             Menu.objects.create(
                 booth=booth,
@@ -107,9 +133,11 @@ def create_menu(request):
 
     return render(request, 'create_menu.html', {'booths': booths, 'selected_booth': selected_booth})
 
+
 def booth_list(request):
     booths = Booth.objects.filter(is_committee=False).order_by('-created_at')
     return render(request, 'booth_list.html', {'booths': booths})
+
 
 def edit_booth(request, booth_id):
     booth = get_object_or_404(Booth, id=booth_id)
@@ -124,8 +152,10 @@ def edit_booth(request, booth_id):
 
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}'
-            thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail, "booth_thumbnail", f"{filename}.jpg")
+            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}' if booth.location.endswith(
+                '관') else f'{booth.location}{int(booth.booth_num):02}'
+            thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(
+                thumbnail, "booth_thumbnail", f"{filename}.jpg")
             booth.thumbnail = thumbnail_url
 
         try:
@@ -139,6 +169,7 @@ def edit_booth(request, booth_id):
         return redirect('collects:booth_list')
 
     return render(request, 'edit_booth.html', {'booth': booth})
+
 
 def edit_menu(request, menu_id):
     menu = get_object_or_404(Menu, id=menu_id)
@@ -154,7 +185,8 @@ def edit_menu(request, menu_id):
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
             filename = f'{menu.booth.location}_{menu.booth.booth_num}_{menu.name}'
-            thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail, "menu_thumbnail", f"{filename}.jpg")
+            thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(
+                thumbnail, "menu_thumbnail", f"{filename}.jpg")
             menu.thumbnail = thumbnail_url
 
         menu.save()
@@ -163,8 +195,10 @@ def edit_menu(request, menu_id):
 
     return render(request, 'edit_menu.html', {'menu': menu})
 
+
 def home(request):
     return render(request, 'home.html')
+
 
 def detail(request, booth_id):
     booth = get_object_or_404(Booth, id=booth_id)
