@@ -102,6 +102,7 @@ class ShowListView(APIView, PaginationHandlerMixin):
 
         q1=Q()
         q1 &= Q(is_show=True)
+        q1 &= Q(is_committee=False)
         if category:
             q1 &= Q(category__in = category)
         
