@@ -55,6 +55,40 @@
         <label for="thumbnail">새 썸네일 이미지 (변경 시):</label>
         <input type="file" id="thumbnail" name="thumbnail" accept="image/*"><br>
         
+        <h3>운영 시간 </h3>
+        <label for="open_time_14">14일:</label>
+        <input type="time" id="open_time_14" name="open_time_14"
+            {% if operating_hours.14 %}
+                value="{{ operating_hours.14.open_time }}"
+            {% endif %}>
+        ~
+        <input type="time" id="close_time_14" name="close_time_14"
+            {% if operating_hours.14 %}
+                value="{{ operating_hours.14.close_time }}"
+            {% endif %}><br>
+
+        <label for="open_time_15">15일:</label>
+        <input type="time" id="open_time_15" name="open_time_15"
+            {% if operating_hours.15 %}
+                value="{{ operating_hours.15.open_time }}"
+            {% endif %}>
+        ~
+        <input type="time" id="close_time_15" name="close_time_15"
+            {% if operating_hours.15 %}
+                value="{{ operating_hours.15.close_time }}"
+            {% endif %}><br>
+
+        <label for="open_time_16">16일:</label>
+        <input type="time" id="open_time_16" name="open_time_16"
+            {% if operating_hours.16 %}
+                value="{{ operating_hours.16.open_time }}"
+            {% endif %}>
+        ~
+        <input type="time" id="close_time_16" name="close_time_16"
+            {% if operating_hours.15 %}
+                value="{{ operating_hours.16.close_time }}"
+            {% endif %}><br>
+
         <button type="submit">부스 수정</button>
     </form>
     <br>

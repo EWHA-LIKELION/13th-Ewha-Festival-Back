@@ -134,6 +134,14 @@ def booth_list(request):
 
 def edit_booth(request, booth_id):
     booth = get_object_or_404(Booth, id=booth_id)
+    operating_hours = OperatingHours.objects.filter(booth_id=booth_id)
+    
+    operating_hours_dict = {}
+    for oh in operating_hours:
+        operating_hours_dict[oh.date] = {
+            'open_time': oh.open_time,
+            'close_time': oh.close_time,
+        }
 
     if request.method == "POST":
         booth.name = request.POST.get('name')
@@ -156,10 +164,43 @@ def edit_booth(request, booth_id):
             return redirect('collects:edit_booth', booth_id=booth.id)
 
         booth.save()
+
+        for oh in operating_hours:
+            oh.delete()
+
+        operating_hours_data = []
+
+        # 각 요일에 대해 사용자가 입력한 시간만 처리
+        days_of_week = ["14", "15", "16"]  # 예시로 14, 15, 16이 수요일, 목요일, 금요일에 대응
+        day_names = ["수요일", "목요일", "금요일"]
+
+        for i in range(3):
+            date_key = days_of_week[i]
+            day_key = day_names[i]
+
+            # 각 요일별로 open_time과 close_time 값이 존재하는 경우만 처리
+            open_time = request.POST.get(f"open_time_{date_key}")
+            close_time = request.POST.get(f"close_time_{date_key}")
+
+            # 사용자가 입력한 시간만 처리
+            if open_time and close_time:  # open_time과 close_time이 모두 입력된 경우만 처리
+                operating_hours_data.append({
+                    "date": date_key,
+                    "day_of_week": day_key,
+                    "open_time": open_time,
+                    "close_time": close_time,
+                })
+
+        # 입력된 데이터가 있을 때만 저장
+        if operating_hours_data:
+            operating_hours_instances = [OperatingHours(
+                booth=booth, **data) for data in operating_hours_data]
+            OperatingHours.objects.bulk_create(operating_hours_instances)
+
         messages.success(request, "부스가 성공적으로 수정되었습니다.")
         return redirect('collects:booth_list')
 
-    return render(request, 'edit_booth.html', {'booth': booth})
+    return render(request, 'edit_booth.html', {'booth': booth, 'operating_hours': operating_hours_dict})
 
 def edit_menu(request, menu_id):
     menu = get_object_or_404(Menu, id=menu_id)
