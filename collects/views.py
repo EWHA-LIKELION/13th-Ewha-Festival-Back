@@ -24,7 +24,7 @@ def create_booth(request):
         thumbnail_file = request.FILES.get('thumbnail')
         thumbnail_url = ''
         if thumbnail_file:
-            filename = f'{location[:-1]}{int(booth_num):02}' if location.endswith('관') else f'{location}{int(booth_num):02}'
+            filename = f'{location[:-1]}{int(booth_num):02}' if location.endswith('관') else f'{location}{int(booth_num):02}{name}'
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "booth_thumbnail", f"{filename}.jpg")
 
         booth = Booth.objects.create(
@@ -103,7 +103,7 @@ def create_menu(request):
             thumbnail_file = thumbnails[i]
             thumbnail_url = ''
             if thumbnail_file:
-                filename = f'{booth.location}_{booth.booth_num}_{names[i]}'
+                filename = f'{booth.name}{booth.location}_{booth.booth_num}_{names[i]}'
                 thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "menu_thumbnail", f"{filename}.jpg")
 
             Menu.objects.create(
@@ -154,7 +154,7 @@ def edit_booth(request, booth_id):
 
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}'
+            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail, "booth_thumbnail", f"{filename}.jpg")
             booth.thumbnail = thumbnail_url
 
@@ -216,7 +216,7 @@ def edit_menu(request, menu_id):
 
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
-            filename = f'{menu.booth.location}_{menu.booth.booth_num}_{menu.name}'
+            filename = f'{menu.booth.name}_{menu.booth.location}_{menu.booth.booth_num}_{menu.name}'
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail, "menu_thumbnail", f"{filename}.jpg")
             menu.thumbnail = thumbnail_url
 
