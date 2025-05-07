@@ -150,6 +150,7 @@ def edit_booth(request, booth_id):
         booth.category = request.POST.get('category')
         booth.contact = request.POST.get('contact')
         booth.description = request.POST.get('description', '')
+        booth.is_show = request.POST.get('is_show') == 'on'
 
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
