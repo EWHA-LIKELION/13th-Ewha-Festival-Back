@@ -29,9 +29,9 @@ class MenuView(APIView):
         booth_num = int(booth.booth_num)
 
         if booth.location.endswith("관"):
-            filename = f"{booth.location[:-1]}{booth_num:02}-{name}"
+            filename = f"{booth.name}{booth.location[:-1]}{booth_num:02}-{name}"
         else:
-            filename = f"{booth.location}{booth_num:02}-{name}"
+            filename = f"{booth.name}{booth.location}{booth_num:02}-{name}"
         request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "menu_thumbnail", filename)
 
         serializer = MenuSerializer(data=request_data)
@@ -61,7 +61,7 @@ class MenuPatchView(APIView):
         name = ""
         if 'name' in request_data:
             name = request_data['name']
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}-{menu.name.replace(" ","")}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}-{menu.name.replace(" ","")}'
+            filename = f'{booth.name}{booth.location[:-1]}{int(booth.booth_num):02}-{menu.name.replace(" ","")}' if booth.location.endswith('관') else f'{booth.name}{booth.location}{int(booth.booth_num):02}-{menu.name.replace(" ","")}'
             ImageProcessing.s3_file_delete('menu_thumbnail', filename)
         else:
             name = menu.name
