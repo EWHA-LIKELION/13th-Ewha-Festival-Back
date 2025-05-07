@@ -45,7 +45,8 @@ class BoothListSerializer(ModelSerializer):
     def get_images(self, obj):
         menus = Menu.objects.filter(booth=obj)
         images = []
-        images.append(obj.thumbnail)
+        if obj.thumbnail and obj.thumbnail.strip():
+            images.append(obj.thumbnail)
 
 
         for menu in menus:
