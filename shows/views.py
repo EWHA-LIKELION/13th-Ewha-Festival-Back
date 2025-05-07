@@ -186,7 +186,10 @@ class ShowPatchView(BoothPatchMixin, APIView):
 
         booth = get_object_or_404(Booth, id=booth_id)
         if 'thumbnail_image' in request_data:
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}'
+            if booth.booth_num is not None:
+                filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
+            else:
+                filename = f'{booth.location[:-1]}' if booth.location.endswith('관') else f'{booth.location}'
             request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "booth_thumbnail", filename)
             
         booth_serialzier = BoothPatchSerializer(booth, data=request_data, partial=True)
