@@ -46,8 +46,13 @@ class BoothListSerializer(ModelSerializer):
         menus = Menu.objects.filter(booth=obj)
         images = []
         images.append(obj.thumbnail)
-        for menu in (menus[0:4] if menus.count() > 4 else menus):
-            images.append(menu.thumbnail)
+
+
+        for menu in menus:
+            if (len(images) == 4):
+                break
+            if menu.thumbnail and menu.thumbnail.strip():
+                images.append(menu.thumbnail)
         return images
 
     def get_day_of_week(self, obj):
