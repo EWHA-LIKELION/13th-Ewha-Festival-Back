@@ -41,7 +41,7 @@ class MenuView(APIView):
             return Response({"message": "메뉴 등록 완료"}, status=HTTP_200_OK)
         
         else:
-            return Response({"error": serializer.error}, status=HTTP_400_BAD_REQUEST)
+            return Response({"error": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 class MenuPatchView(APIView):
     permission_classes = [IsManger]
