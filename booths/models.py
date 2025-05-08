@@ -46,8 +46,9 @@ class Booth(models.Model):
         # 공연 카테고리
         ('댄스', '댄스'),
         ('밴드', '밴드'),
-        ('보컬', '보컬'),
-        ('연극', '연극')
+        ('연극', '연극'),
+        ('보컬', '보컬')
+ 
     )
 
     name = models.CharField(max_length=100)
