@@ -151,7 +151,7 @@ def edit_booth(request, booth_id):
     if request.method == "POST":
         booth.name = request.POST.get('name')
         booth.location = request.POST.get('location')
-        booth.booth_num = request.POST.get('booth_num')
+        booth_num = request.POST.get('booth_num')
         booth.category = request.POST.get('category')
         booth.contact = request.POST.get('contact')
         booth.description = request.POST.get('description', '')
@@ -164,7 +164,7 @@ def edit_booth(request, booth_id):
                 booth_num = None 
         else:
             booth_num = None
-
+        booth.booth_num = booth_num
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
             if booth.booth_num is not None:
