@@ -157,6 +157,14 @@ def edit_booth(request, booth_id):
         booth.description = request.POST.get('description', '')
         booth.is_show = request.POST.get('is_show') == 'on'
 
+        if booth_num not in [None, '']:
+            try:
+                booth_num = int(booth_num)
+            except ValueError:
+                booth_num = None 
+        else:
+            booth_num = None
+
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
             if booth.booth_num is not None:
@@ -166,13 +174,7 @@ def edit_booth(request, booth_id):
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail, "booth_thumbnail", f"{filename}.jpg")
             booth.thumbnail = thumbnail_url
 
-        if booth_num not in [None, '']:
-            try:
-                booth_num = int(booth_num)
-            except ValueError:
-                booth_num = None 
-        else:
-            booth_num = None
+        
 
         booth.save()
 
