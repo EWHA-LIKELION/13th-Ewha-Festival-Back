@@ -26,10 +26,10 @@ def create_booth(request):
         thumbnail_file = request.FILES.get('thumbnail')
         thumbnail_url = ''
         if thumbnail_file:
-            if booth.booth_num is not None:
-                filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
+            if booth_num is not None:
+                filename = f'{location[:-1]}{int(booth_num):02}{ｎame}' if location.endswith('관') else f'{location}{int(booth_num):02}{name}'
             else:
-                filename = f'{booth.location[:-1]}' if booth.location.endswith('관') else f'{booth.location}'
+                filename = f'{location[:-1]}' if location.endswith('관') else f'{location}'
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "booth_thumbnail", f"{filename}.jpg")
 
         booth = Booth.objects.create(
