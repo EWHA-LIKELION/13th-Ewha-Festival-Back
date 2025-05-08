@@ -33,7 +33,8 @@ class MenuView(APIView):
             else:
                 filename = f"{booth.name}{booth.location}{booth_num:02}-{name}"
             request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "menu_thumbnail", filename)
-
+        else:
+            request_data['thumbnail'] = ""
         serializer = MenuSerializer(data=request_data)
         if serializer.is_valid():
             serializer.save(booth=booth)
