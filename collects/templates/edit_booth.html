@@ -35,7 +35,7 @@
         <h3>부스 분류</h3>
     
         
-        <label for="is_show">공연 부스(댄스, 밴드 등)이면 체크 표시 해주세요.</label>
+        <label for="is_show">공연 부스(댄스, 밴드, 연극, 보컬)이면 체크 표시 해주세요.</label>
 <input type="checkbox" id="is_show" name="is_show" {% if booth.is_show %}checked{% endif %}>
   
         <h3>부스 분류</h3>
@@ -43,8 +43,11 @@
         <select id="category" name="category" required>
             <option value="음식" {% if booth.category == "음식" %}selected{% endif %}>음식</option>
             <option value="굿즈" {% if booth.category == "굿즈" %}selected{% endif %}>굿즈</option>
+            <option value="체험형" {% if booth.category == "체험형" %}selected{% endif %}>체험형</option>
             <option value="댄스" {% if booth.category == "댄스" %}selected{% endif %}>댄스</option>
             <option value="밴드" {% if booth.category == "밴드" %}selected{% endif %}>밴드</option>
+            <option value="연극" {% if booth.category == "연극" %}selected{% endif %}>연극</option>
+            <option value="보컬" {% if booth.category == "보컬" %}selected{% endif %}>보컬</option>
         </select><br>
         
         <h3>운영진 연락처</h3>
