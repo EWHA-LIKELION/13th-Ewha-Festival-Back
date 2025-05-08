@@ -10,7 +10,8 @@ def create_booth(request):
         category = request.POST.get('category')
         contact = request.POST.get('contact')
         location = request.POST.get('location')
-        booth_num = request.POST.get('booth_num')
+        if request.POST.get('booth_num'):
+            booth_num = request.POST.get('booth_num')
         description = request.POST.get('description')
         is_show = True if request.POST.get('is_show') == 'on' else False
 
@@ -146,7 +147,8 @@ def edit_booth(request, booth_id):
     if request.method == "POST":
         booth.name = request.POST.get('name')
         booth.location = request.POST.get('location')
-        booth.booth_num = request.POST.get('booth_num')
+        if request.POST.get('booth_num'):
+            booth.booth_num = request.POST.get('booth_num')
         booth.category = request.POST.get('category')
         booth.contact = request.POST.get('contact')
         booth.description = request.POST.get('description', '')
