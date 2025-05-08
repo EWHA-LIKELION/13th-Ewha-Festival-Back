@@ -50,7 +50,7 @@ class BoothListSerializer(ModelSerializer):
 
 
         for menu in menus:
-            if (len(images) == 4):
+            if (len(images) == 6):
                 break
             if menu.thumbnail and menu.thumbnail.strip():
                 images.append(menu.thumbnail)
