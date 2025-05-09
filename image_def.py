@@ -99,7 +99,7 @@ class ImageProcessing:
 
             # ✅ JPEG 저장 시 품질 고정 + 최적화 제거
             img = img.convert("RGB")
-            img.save(output, format="JPEG", quality=70)  # ✅ 통일된 포맷으로 저장
+            img.save(output, format="JPEG", quality=50)  # ✅ 통일된 포맷으로 저장
 
             output.seek(0)
 
