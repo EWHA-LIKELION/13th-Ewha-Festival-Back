@@ -31,7 +31,7 @@
         
         <h3>부스 번호</h3>
         <label for="booth_num">부스 번호:</label>
-        <input type="number" id="booth_num" name="booth_num" value="{{ booth.booth_num }}" maxlength="13" required><br>
+        <input type="number" id="booth_num" name="booth_num" value="{{ booth.booth_num }}" maxlength="13"><br>
         <h3>부스 분류</h3>
     
         
@@ -43,7 +43,7 @@
         <select id="category" name="category" required>
             <option value="음식" {% if booth.category == "음식" %}selected{% endif %}>음식</option>
             <option value="굿즈" {% if booth.category == "굿즈" %}selected{% endif %}>굿즈</option>
-            <option value="체험형" {% if booth.category == "체험형" %}selected{% endif %}>체험형</option>
+            <option value="체험" {% if booth.category == "체험" %}selected{% endif %}>체험</option>
             <option value="댄스" {% if booth.category == "댄스" %}selected{% endif %}>댄스</option>
             <option value="밴드" {% if booth.category == "밴드" %}selected{% endif %}>밴드</option>
             <option value="연극" {% if booth.category == "연극" %}selected{% endif %}>연극</option>

@@ -14,17 +14,22 @@ def create_booth(request):
         description = request.POST.get('description')
         is_show = True if request.POST.get('is_show') == 'on' else False
 
-        try:
-            booth_num = int(booth_num)
-        except (TypeError, ValueError):
-            messages.error(request, "부스 번호는 숫자여야 합니다.")
-            return redirect('collects:create_booth')
+        if booth_num not in [None, '']:
+            try:
+                booth_num = int(booth_num)
+            except ValueError:
+                booth_num = None 
+        else:
+            booth_num = None
 
         # 썸네일 S3 업로드
         thumbnail_file = request.FILES.get('thumbnail')
         thumbnail_url = ''
         if thumbnail_file:
-            filename = f'{location[:-1]}{int(booth_num):02}{name}' if location.endswith('관') else f'{location}{int(booth_num):02}{name}'
+            if booth_num is not None:
+                filename = f'{location[:-1]}{int(booth_num):02}{ｎame}' if location.endswith('관') else f'{location}{int(booth_num):02}{name}'
+            else:
+                filename = f'{location[:-1]}{name}' if location.endswith('관') else f'{location}{name}'
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "booth_thumbnail", f"{filename}.jpg")
 
         booth = Booth.objects.create(
@@ -146,23 +151,30 @@ def edit_booth(request, booth_id):
     if request.method == "POST":
         booth.name = request.POST.get('name')
         booth.location = request.POST.get('location')
-        booth.booth_num = request.POST.get('booth_num')
+        booth_num = request.POST.get('booth_num')
         booth.category = request.POST.get('category')
         booth.contact = request.POST.get('contact')
         booth.description = request.POST.get('description', '')
         booth.is_show = request.POST.get('is_show') == 'on'
 
+        if booth_num not in [None, '']:
+            try:
+                booth_num = int(booth_num)
+            except ValueError:
+                booth_num = None 
+        else:
+            booth_num = None
+        booth.booth_num = booth_num
         thumbnail = request.FILES.get('thumbnail')
         if thumbnail:
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
+            if booth.booth_num is not None:
+                filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
+            else:
+                filename = f'{booth.location[:-1]}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{booth.name}'
             thumbnail_url = ImageProcessing.s3_file_upload_by_file_data(thumbnail, "booth_thumbnail", f"{filename}.jpg")
             booth.thumbnail = thumbnail_url
 
-        try:
-            booth.booth_num = int(booth.booth_num)
-        except (TypeError, ValueError):
-            messages.error(request, "부스 번호는 숫자여야 합니다.")
-            return redirect('collects:edit_booth', booth_id=booth.id)
+        
 
         booth.save()
 
