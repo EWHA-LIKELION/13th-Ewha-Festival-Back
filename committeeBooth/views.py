@@ -23,9 +23,9 @@ class CommitteeBoothListView(APIView):
         booth3 = CommitteeBooth.objects.filter(type='홍보디자인')
         booth3_serializer = CommitteeBoothListSerializer(booth3, many=True, context={'request': request})
         response = {
-            "기획": booth1_serializer.data,
-            "대회협력": booth2_serializer.data,
-            "홍보디자인": booth3_serializer.data
+            "기획팀": booth1_serializer.data,
+            "대외협력팀": booth2_serializer.data,
+            "홍보디자인팀": booth3_serializer.data
         }
         
         return Response(data=response, status=HTTP_200_OK)
