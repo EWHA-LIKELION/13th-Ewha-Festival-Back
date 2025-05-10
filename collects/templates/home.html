@@ -27,10 +27,23 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .important-message {
+            color: red;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 50px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
     <h1>대동제 정보수합페이지</h1>
+
+    <p class="important-message">
+        각 부스에 부여된 부스 코드 꼭 미리 확인하시고, 별도로 메모해주시기 바랍니다<br>
+        ⚠️5월 11일(일) 오전 11시 59분 이후 임시 정보 수합 페이지 접속 불가⚠️
+    </p>
+
     <a class="btn" href="{% url 'collects:create_booth' %}">부스등록</a>
     <a class="btn" href="{% url 'collects:booth_list' %}">부스리스트</a>
     <a class="btn" href="{% url 'collects:create_menu' %}">메뉴등록</a>
