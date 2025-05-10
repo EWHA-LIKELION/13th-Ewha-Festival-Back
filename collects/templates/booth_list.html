@@ -9,6 +9,15 @@
         th { background-color: #f2f2f2; }
         img { max-width: 100px; max-height: 100px; }
         tr.clickable { cursor: pointer; }
+
+        .important-message {
+            color: red;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
     </style>
     <script>
         function goToDetail(boothId) {
@@ -17,6 +26,12 @@
     </script>
 </head>
 <body>
+
+    <p class="important-message">
+        각 부스에 부여된 부스 코드 꼭 미리 확인하시고, 별도로 메모해주시기 바랍니다<br>
+        ⚠️5월 11일(일) 오전 11시 59분 이후 임시 정보 수합 페이지 접속 불가⚠️
+    </p>
+
     <h1>부스 목록</h1>
     <table>
         <thead>
