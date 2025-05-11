@@ -78,4 +78,4 @@ class OperationNoticeView(APIView):
         # 공지 목록 가져오기 (ListView)
         operation_notices = OperationNotice.objects.all().order_by('-created_at')
         serializer = OperationNoticeSerializer(operation_notices, many=True)
-
+        return Response(serializer.data)
