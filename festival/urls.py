@@ -17,7 +17,7 @@ urlpatterns = [
     path("search/", include("search.urls")),
     path("menus/", include('menu.urls')),
     path('guestbooks/', include('guestbooks.urls')),
-    path('collects/', include('collects.urls')),
+    #path('collects/', include('collects.urls')),
     path('committees/', include('committeeBooth.urls')),
 ] 
 
