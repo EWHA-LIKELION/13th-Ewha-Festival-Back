@@ -191,7 +191,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+   
 # S3 설정하기
 # S3 setting
 AWS_S3_ACCESS_KEY_ID = os.environ.get('AWS_S3_ACCESS_KEY_ID')
