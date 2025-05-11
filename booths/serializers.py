@@ -54,6 +54,10 @@ class BoothListSerializer(ModelSerializer):
                 break
             if menu.thumbnail and menu.thumbnail.strip():
                 images.append(menu.thumbnail)
+
+        for i in range(len(images), 5):
+            images.append("	https://festival-bucket.s3.ap-northeast-2.amazonaws.com/booth_thumbnail/Frame+949.jpg")
+        
         return images
 
     def get_day_of_week(self, obj):
