@@ -53,7 +53,8 @@ class MyPageScrapView(APIView):
         # 페이지네이션된 결과 반환
         return paginator.get_paginated_response({
             "booths": booths,
-            "shows": shows
+            "shows": shows,
+            "count": len(booths) + len(shows)
         })
 
 
