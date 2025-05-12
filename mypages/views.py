@@ -39,6 +39,8 @@ class MyPageScrapView(APIView):
         booths = []
         shows = []
 
+        count = request.user.scrap_count
+
         # 시리얼라이저로 부스 데이터를 변환
         for scrap in result_page:
             booth_data = BoothScrapSerializer(
@@ -54,7 +56,7 @@ class MyPageScrapView(APIView):
         return paginator.get_paginated_response({
             "booths": booths,
             "shows": shows,
-            "count": len(booths) + len(shows)
+            "count": count
         })
 
 
