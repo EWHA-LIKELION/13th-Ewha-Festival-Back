@@ -16,6 +16,7 @@
         <option value="정문">정문</option>
         <option value="포스코관">포스코관</option>
         <option value="학문관">학문관</option>
+        <option value="학문관 지하">학문관 지하</option>
         <option value="휴웃길">휴웃길</option>
         <option value="학관">학관</option>
         <option value="학문관무대">학문관무대</option>
@@ -23,22 +24,25 @@
     </select><br>
         <!-- 부스 번호 입력 -->
     <label for="booth_num">부스 번호:</label>
-    <input type="number" id="booth_num" name="booth_num" required><br>
+    <input type="number" id="booth_num" name="booth_num" ><br>
     
 
     <p>
     <h3>부스 분류</h3>
     
         
-        <label for="is_show">공연 부스(댄스, 밴드 등)이면 체크 표시 해주세요.</label>
+        <label for="is_show">공연 부스(댄스, 밴드, 연극, 보컬)이면 체크 표시 해주세요.</label>
         <input type="checkbox" id="is_show" name="is_show">
     </p>
     <label for="category">분류:</label>
     <select id="category" name="category" required>
         <option value="음식">음식</option>
         <option value="굿즈">굿즈</option>
+        <option value="체험">체험</option>
         <option value="댄스">댄스</option>
         <option value="밴드">밴드</option>
+        <option value="연극">연극</option>
+        <option value="보컬">보컬</option>
     </select><br>
     
     <p>
@@ -62,9 +66,9 @@
     </p>
     운영 시간은 수정 최소화 부탁드립니다!<br>
     <label for="open_time_14">14일:</label>
-    <input type="time" id="open_time_14" name="open_time_14" required>
+    <input type="time" id="open_time_14" name="open_time_14" >
     ~
-    <input type="time" id="close_time_14" name="close_time_14" required><br>
+    <input type="time" id="close_time_14" name="close_time_14" ><br>
 
     <label for="open_time_15">15일:</label>
     <input type="time" id="open_time_15" name="open_time_15" >

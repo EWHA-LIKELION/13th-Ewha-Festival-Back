@@ -12,6 +12,7 @@ class OperationNoticeSerializer(serializers.ModelSerializer):
     def get_created_date(self, obj):
         month = obj.created_at.month  # 02월 방지 -> 2월월
         day = obj.created_at.day
+        return f"{month}/{day}"
 
 class NoticeListSerializer(serializers.ModelSerializer):
     # 시간 차이 구하는 필드 추가 (몇 시간 전에 작성되었는지)

@@ -3,6 +3,7 @@ from django.conf import settings
 import boto3
 from PIL import Image as pil, ImageOps
 from io import BytesIO
+import re
 
 class ImageProcessing:
     MAX_FILE_SIZE = 2 * 1024 * 1024  # 최대 파일 크기 2MB
@@ -12,6 +13,8 @@ class ImageProcessing:
     def s3_file_upload_by_file_data(upload_file, bucket_path, file_name, content_type=None, extension=None):
         region_name = settings.AWS_S3_REGION_NAME
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        file_name = re.sub(r'[^a-zA-Z0-9가-힣._-]', '', file_name)
+
         
         content_type = content_type or upload_file.content_type
         extension = extension or upload_file.name.split('.')[-1]
@@ -96,7 +99,7 @@ class ImageProcessing:
 
             # ✅ JPEG 저장 시 품질 고정 + 최적화 제거
             img = img.convert("RGB")
-            img.save(output, format="JPEG", quality=70)  # ✅ 통일된 포맷으로 저장
+            img.save(output, format="JPEG", quality=50)  # ✅ 통일된 포맷으로 저장
 
             output.seek(0)
 

@@ -6,19 +6,14 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'accounts.User'
-
+  
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# 절대 경로로 .env 파일 경로 설정
-env_file_path = r"C:\Users\박민서\Desktop\멋사\13th-Ewha-Festival-Back\.env"  # 절대 경로로 설정
 
 # environ을 사용해 환경 변수 설정
 env = environ.Env(
     DEBUG=(bool, False)
 )
-
-# 절대 경로로 .env 파일 읽기
-environ.Env.read_env(env_file_path)  # .env 파일 경로 읽기
 
 # 환경 변수 로드
 SECRET_KEY = env('DJANGO_SECRET_KEY')
@@ -196,7 +191,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+   
 # S3 설정하기
 # S3 setting
 AWS_S3_ACCESS_KEY_ID = os.environ.get('AWS_S3_ACCESS_KEY_ID')
@@ -216,4 +211,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'       

@@ -78,14 +78,12 @@ class BoothCountView(APIView, PaginationHandlerMixin):
             q1 &= Q(location__in = location)
 
         booths = Booth.objects.filter(q1)
-
+        
         if day_of_week:
-            for booth in booths:
-                q2 = Q()
-                q2 &= Q(booth = booth)
-                q2 &= Q(day_of_week__in = day_of_week)
-                if not OperatingHours.objects.filter(q2).exists():
-                    booths.exclude(id=booth.id)  
+            # 요일에 따라 운영하는 부스만 선택
+            booths = booths.filter(
+                operating_hours__day_of_week__in=day_of_week
+            ).distinct() 
 
         response = {
             "booth_count": booths.count(),
@@ -107,6 +105,7 @@ class BoothListView(APIView, PaginationHandlerMixin):
 
         q1=Q()
         q1 &= Q(is_show=False)
+        q1 &= Q(is_committee=False)
         if category:
             q1 &= Q(category__in = category)
         
@@ -207,7 +206,10 @@ class BoothPatchView(BoothPatchMixin, APIView):
 
         booth = get_object_or_404(Booth, id=booth_id)
         if 'thumbnail_image' in request_data:
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}'
+            if booth.booth_num is not None:
+                filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
+            else:
+                filename = f'{booth.location[:-1]}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{booth.name}'
             request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "booth_thumbnail", filename)
             
         booth_serialzier = BoothPatchSerializer(booth, data=request_data, partial=True)

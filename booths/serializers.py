@@ -30,26 +30,40 @@ class BoothListSerializer(ModelSerializer):
     class Meta:
         model = Booth
         fields = ['id', 'name', 'is_opened', 'category', 'day_of_week',
-                  'formatted_location', 'scrap_count', 'description', 'images', "is_show", "is_scrap"]
+                  'formatted_location', 'scrap_count', 'description', 'images', "is_show", "is_committee", "is_scrap"]
 
     def get_formatted_location(self, obj):
         if obj.location.endswith('관'):
             obj.location = obj.location[:-1]
-        return f"{obj.location}{int(obj.booth_num):02}"
+
+        if obj.booth_num is not None:
+
+            return f"{obj.location}{int(obj.booth_num):02}"
+        return f"{obj.location}"
 
     def get_images(self, obj):
         menus = Menu.objects.filter(booth=obj)
         images = []
-        images.append(obj.thumbnail)
-        for menu in (menus[0:4] if menus.count() > 4 else menus):
-            images.append(menu.thumbnail)
+        if obj.thumbnail and obj.thumbnail.strip():
+            images.append(obj.thumbnail)
+
+
+        for menu in menus:
+            if (len(images) == 5):
+                break
+            if menu.thumbnail and menu.thumbnail.strip():
+                images.append(menu.thumbnail)
+
+        for i in range(len(images), 5):
+            images.append("	https://festival-bucket.s3.ap-northeast-2.amazonaws.com/booth_thumbnail/Frame+949.jpg")
+        
         return images
 
     def get_day_of_week(self, obj):
         operating_hours = OperatingHours.objects.filter(booth=obj)
         day_of_week = []
         for day in operating_hours:
-            day_of_week.append(day.day_of_week)
+            day_of_week.append(day.day_of_week[0])
         return day_of_week
 
     def get_is_scrap(self, obj):

@@ -32,6 +32,8 @@ class Booth(models.Model):
 
         ('정문03', '정문03'),   
         ('정문02', '정문02'),
+        ('스포츠트랙28', '스포츠트랙28'),
+        ('학문관 지하', '학문관 지하')
 
     )
 
@@ -39,16 +41,20 @@ class Booth(models.Model):
         # 부스 카테고리
         ('음식', '음식'),
         ('굿즈', '굿즈'),
+        ('체험', '체험'),
 
         # 공연 카테고리
         ('댄스', '댄스'),
-        ('밴드', '밴드')
+        ('밴드', '밴드'),
+        ('연극', '연극'),
+        ('보컬', '보컬')
+ 
     )
 
     name = models.CharField(max_length=100)
     thumbnail = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    category = models.CharField(choices=CATEGORY_CHOICES, max_length=10)
+    category = models.CharField(choices=CATEGORY_CHOICES, max_length=10, null=True)
     contact = models.CharField(blank=True, max_length=200)
     is_opened = models.BooleanField(default=True)
     is_show = models.BooleanField(default=False)

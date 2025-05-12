@@ -17,7 +17,7 @@ class Notice(models.Model):
             return f'No Booth or Show - {self.id} notice'
         
 class OperationNotice(models.Model):
-    title = models.CharField(max_length=22, null=False) #최대 22글자로 제한 
+    title = models.CharField(max_length=30, null=False) #최대 30글자로 제한 
     content = models.TextField(null=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

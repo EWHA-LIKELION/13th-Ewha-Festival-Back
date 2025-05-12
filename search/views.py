@@ -28,8 +28,11 @@ class BoothSearchView(APIView):
         if not query:
             return Response({"message": "검색어를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
 
+        q1 = Q(name__icontains=query)
+        q1 &= Q(is_committee=False)
+
         # 🔍 부스명에서 검색
-        booth_results = Booth.objects.filter(Q(name__icontains=query))
+        booth_results = Booth.objects.filter(q1)
 
         # 🔍 메뉴에서 검색한 부스를 가져오기
         menu_results = Menu.objects.filter(

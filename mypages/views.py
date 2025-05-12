@@ -23,7 +23,6 @@ class BoothScrapPagination(CursorPagination):
 
 
 class MyPageScrapView(APIView):
-    # permission_classes = [IsAuthenticated]
     pagination_class = BoothScrapPagination  # 페이지네이션 클래스 적용
 
     def get(self, request):

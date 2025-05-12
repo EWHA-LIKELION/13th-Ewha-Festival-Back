@@ -27,13 +27,14 @@ class MenuView(APIView):
         request_data = request.data.copy()
         name = request_data["name"].replace(" ", "")
         booth_num = int(booth.booth_num)
-
-        if booth.location.endswith("관"):
-            filename = f"{booth.location[:-1]}{booth_num:02}-{name}"
+        if 'thumbnail_image' in request_data:
+            if booth.location.endswith("관"):
+                filename = f"{booth.name}{booth.location[:-1]}{booth_num:02}-{name}"
+            else:
+                filename = f"{booth.name}{booth.location}{booth_num:02}-{name}"
+            request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "menu_thumbnail", filename)
         else:
-            filename = f"{booth.location}{booth_num:02}-{name}"
-        request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "menu_thumbnail", filename)
-
+            request_data['thumbnail'] = ""
         serializer = MenuSerializer(data=request_data)
         if serializer.is_valid():
             serializer.save(booth=booth)
@@ -41,7 +42,7 @@ class MenuView(APIView):
             return Response({"message": "메뉴 등록 완료"}, status=HTTP_200_OK)
         
         else:
-            return Response({"error": serializer.error}, status=HTTP_400_BAD_REQUEST)
+            return Response({"error": serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 class MenuPatchView(APIView):
     permission_classes = [IsManger]
@@ -61,7 +62,7 @@ class MenuPatchView(APIView):
         name = ""
         if 'name' in request_data:
             name = request_data['name']
-            filename = f'{booth.location[:-1]}{int(booth.booth_num):02}-{menu.name.replace(" ","")}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}-{menu.name.replace(" ","")}'
+            filename = f'{booth.name}{booth.location[:-1]}{int(booth.booth_num):02}-{menu.name.replace(" ","")}' if booth.location.endswith('관') else f'{booth.name}{booth.location}{int(booth.booth_num):02}-{menu.name.replace(" ","")}'
             ImageProcessing.s3_file_delete('menu_thumbnail', filename)
         else:
             name = menu.name
