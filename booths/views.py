@@ -10,6 +10,7 @@ from .serializers import *
 from .permissions import *
 from .paginations import *
 from image_def import ImageProcessing
+from django.http import QueryDict
 import logging
 import json
 
@@ -202,15 +203,16 @@ class BoothPatchView(BoothPatchMixin, APIView):
         return Response(data=data, status=HTTP_200_OK)
 
     def patch(self, request, booth_id):
-        request_data = request.data.copy()
+        request_data = {k: v for k, v in request.data.items() if k not in request.FILES}
 
         booth = get_object_or_404(Booth, id=booth_id)
-        if 'thumbnail_image' in request_data:
+        thumbnail_file = request.FILES.get('thumbnail_image')
+        if thumbnail_file:
             if booth.booth_num is not None:
                 filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
             else:
                 filename = f'{booth.location[:-1]}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{booth.name}'
-            request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(request_data['thumbnail_image'], "booth_thumbnail", filename)
+            request_data['thumbnail'] = ImageProcessing.s3_file_upload_by_file_data(thumbnail_file, "booth_thumbnail", filename)
             
         booth_serialzier = BoothPatchSerializer(booth, data=request_data, partial=True)
 

@@ -180,10 +180,11 @@ class ShowPatchView(BoothPatchMixin, APIView):
         return Response(data=data, status=HTTP_200_OK)
 
     def patch(self, request, booth_id):
-        request_data = request.data.copy()
+        request_data = {k: v for k, v in request.data.items() if k not in request.FILES}
 
         booth = get_object_or_404(Booth, id=booth_id)
-        if 'thumbnail_image' in request_data:
+        thumbnail_file = request.FILES.get('thumbnail_image')
+        if thumbnail_file:
             if booth.booth_num is not None:
                 filename = f'{booth.location[:-1]}{int(booth.booth_num):02}{booth.name}' if booth.location.endswith('관') else f'{booth.location}{int(booth.booth_num):02}{booth.name}'
             else:
