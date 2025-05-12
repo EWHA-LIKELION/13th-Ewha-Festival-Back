@@ -78,14 +78,12 @@ class BoothCountView(APIView, PaginationHandlerMixin):
             q1 &= Q(location__in = location)
 
         booths = Booth.objects.filter(q1)
-
+        
         if day_of_week:
-            for booth in booths:
-                q2 = Q()
-                q2 &= Q(booth = booth)
-                q2 &= Q(day_of_week__in = day_of_week)
-                if not OperatingHours.objects.filter(q2).exists():
-                    booths.exclude(id=booth.id)  
+            # 요일에 따라 운영하는 부스만 선택
+            booths = booths.filter(
+                operating_hours__day_of_week__in=day_of_week
+            ).distinct() 
 
         response = {
             "booth_count": booths.count(),
