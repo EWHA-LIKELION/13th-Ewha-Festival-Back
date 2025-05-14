@@ -131,11 +131,15 @@ class KakaoProdCallbackView(views.APIView):
         kakao_account = user_info_json.get("kakao_account", {})
         profile = kakao_account.get("profile", {})
         #username 설정 -> 중복값 방지 
-        nickname = profile.get("nickname") 
+        nickname = profile.get("nickname", "")
+        
+        # nickname에서 공백 제거 또는 치환 → username 생성
+        cleaned_nickname = nickname.replace(" ", "_")  # 공백을 밑줄로 치환
+        username = cleaned_nickname + social_id
 
         # 회원가입 및 로그인 처리 
         try:   
-            user_in_db = User.objects.get(username=nickname+social_id) 
+            user_in_db = User.objects.get(username=username) 
             # JWT 토큰 발급
             token = RefreshToken.for_user(user_in_db)
             access_token = str(token.access_token)
@@ -168,7 +172,7 @@ class KakaoProdCallbackView(views.APIView):
         except User.DoesNotExist:
             # 자동 회원가입 처리
             request_data = {
-                'username': nickname + social_id,
+                'username': username,
                 'nickname': nickname,
                 'password': KAKAO_PASSWORD  # 랜덤 패스워드 사용
             }
@@ -249,11 +253,15 @@ class KakaoDevCallbackView(views.APIView):
         kakao_account = user_info_json.get("kakao_account", {})
         profile = kakao_account.get("profile", {})
         #username 설정 -> 중복값 방지 
-        nickname = profile.get("nickname") 
+        nickname = profile.get("nickname", "")
+        
+        # nickname에서 공백 제거 또는 치환 → username 생성
+        cleaned_nickname = nickname.replace(" ", "_")  # 공백을 밑줄로 치환
+        username = cleaned_nickname + social_id
 
         # 회원가입 및 로그인 처리 
         try:   
-            user_in_db = User.objects.get(username=nickname+social_id) 
+            user_in_db = User.objects.get(username=username) 
             # JWT 토큰 발급
             token = RefreshToken.for_user(user_in_db)
             access_token = str(token.access_token)
@@ -286,7 +294,7 @@ class KakaoDevCallbackView(views.APIView):
         except User.DoesNotExist:
             # 자동 회원가입 처리
             request_data = {
-                'username': nickname + social_id,
+                'username': username,
                 'nickname': nickname,
                 'password': KAKAO_PASSWORD  # 랜덤 패스워드 사용
             }
